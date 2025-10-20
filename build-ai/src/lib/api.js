@@ -25,5 +25,28 @@ export const scrapeURL = (chatbotId, url) =>
   api.post(`/api/chatbots/${chatbotId}/scrape`, { url });
 
 // Chat APIs
-export const sendMessage = (chatbotId, message) => 
+export const sendMessage = (chatbotId, message) =>
   api.post(`/api/chat/${chatbotId}`, { message });
+
+// Authentication APIs
+export const register = (data) =>
+  fetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).then(res => res.json());
+
+export const login = (data) =>
+  fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  }).then(res => res.json());
+
+export const logout = () =>
+  fetch('/api/auth/logout', {
+    method: 'POST',
+  }).then(res => res.json());
+
+export const getCurrentUser = () =>
+  fetch('/api/auth/me').then(res => res.json());

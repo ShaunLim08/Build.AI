@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function NewChatbotPage() {
   const [step, setStep] = useState(1);
@@ -37,9 +38,13 @@ export default function NewChatbotPage() {
         <div className="container py-4">
           <nav className="flex items-center justify-between">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">B</span>
-              </div>
+              <Image
+                src="/buildai.png"
+                alt="Build.AI Logo"
+                width={32}
+                height={32}
+                className="w-8 h-8"
+              />
               <span className="text-xl font-bold">Build.AI</span>
             </Link>
             <Link href="/dashboard" className="btn-secondary">

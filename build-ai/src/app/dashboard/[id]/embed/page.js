@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function EmbedPage({ params }) {
   const [activeTab, setActiveTab] = useState('widget');
@@ -68,9 +69,13 @@ console.log(data.response);`;
         <div className="container py-4">
           <nav className="flex items-center justify-between">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">B</span>
-              </div>
+              <Image
+                src="/buildai.png"
+                alt="Build.AI Logo"
+                width={32}
+                height={32}
+                className="w-8 h-8"
+              />
               <span className="text-xl font-bold">Build.AI</span>
             </Link>
             <Link href="/dashboard" className="btn-secondary">
@@ -177,10 +182,10 @@ console.log(data.response);`;
               <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                 <h4 className="font-medium mb-2">Customization Options</h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>" Customize colors and themes to match your brand</li>
-                  <li>" Set custom welcome messages and bot personality</li>
-                  <li>" Configure widget position and behavior</li>
-                  <li>" Enable/disable features like file uploads and voice input</li>
+                  <li>• Customize colors and themes to match your brand</li>
+                  <li>• Set custom welcome messages and bot personality</li>
+                  <li>• Configure widget position and behavior</li>
+                  <li>• Enable/disable features like file uploads and voice input</li>
                 </ul>
               </div>
             </div>

@@ -31,35 +31,13 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border">
-        <div className="container py-4">
-          <nav className="flex items-center justify-between">
-            <Link href="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">B</span>
-              </div>
-              <span className="text-xl font-bold">Build.AI</span>
-            </Link>
-            <Link href="/dashboard/new" className="btn-primary">
-              Create Chatbot
-            </Link>
-          </nav>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className="container py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Your Chatbots</h1>
-            <p className="text-muted-foreground">
-              Manage and monitor your RAG-powered chatbots
-            </p>
-          </div>
-          <Link href="/dashboard/new" className="btn-primary">
-            + New Chatbot
-          </Link>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Your Chatbots</h1>
+          <p className="text-muted-foreground">
+            Manage and monitor your RAG-powered chatbots
+          </p>
         </div>
 
         {/* Stats Cards */}

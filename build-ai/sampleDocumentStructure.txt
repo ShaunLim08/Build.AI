@@ -1,0 +1,129 @@
+**users:**
+
+javascript
+
+`{
+  "_id": ObjectId,
+  "email": "user@example.com",
+  "password": "hashed_password",
+  "name": "John Doe",
+  "createdAt": ISODate,
+  "lastLogin": ISODate
+}`
+
+### **chatbots:**
+
+javascript
+
+`{
+  "_id": ObjectId,
+  "userId": ObjectId,
+  "name": "Customer Support Bot",
+  "description": "Answers customer questions",
+  "systemInstruction": "You are a helpful customer support agent...",
+  "isPublic": true,
+  "settings": {
+    "temperature": 0.7,
+    "maxTokens": 500,
+    "responseStyle": "professional"
+  },
+  "createdAt": ISODate,
+  "updatedAt": ISODate
+}`
+
+### **documents:**
+
+javascript
+
+`{
+  "_id": ObjectId,
+  "chatbotId": ObjectId,
+  "filename": "product-manual.pdf",
+  "type": "pdf",
+  "url": "https://storage.../file.pdf",
+  "status": "processed",
+  "pageCount": 45,
+  "wordCount": 12500,
+  "uploadedAt": ISODate,
+  "processedAt": ISODate
+}`
+
+### **chunks:**
+
+javascript
+
+`{
+  "_id": ObjectId,
+  "chatbotId": ObjectId,
+  "documentId": ObjectId,
+  "text": "This is the actual text content of the chunk...",
+  "embedding": [0.123, -0.456, 0.789, ...], *// 1536 numbers*
+  "metadata": {
+    "source": "product-manual.pdf",
+    "page": 12,
+    "chunkIndex": 24
+  },
+  "createdAt": ISODate
+}`
+
+### **conversations:**
+
+javascript
+
+`{
+  "_id": ObjectId,
+  "chatbotId": ObjectId,
+  "sessionId": "unique-session-id",
+  "messages": [
+    {
+      "role": "user",
+      "content": "What is your return policy?",
+      "timestamp": ISODate
+    },
+    {
+      "role": "assistant",
+      "content": "Our return policy allows...",
+      "timestamp": ISODate,
+      "sources": [ObjectId, ObjectId] *// chunk IDs used*
+    }
+  ],
+  "startedAt": ISODate,
+  "lastMessageAt": ISODate
+}`
+
+### **apiKeys:**
+
+javascript
+
+`{
+  "_id": ObjectId,
+  "userId": ObjectId,
+  "chatbotId": ObjectId,
+  "key": "hashed_key_value",
+  "keyPrefix": "sk_live_12345678...",
+  "name": "Production Widget Key",
+  "permissions": ["chat", "read"],
+  "rateLimit": {
+    "requestsPerMinute": 60,
+    "requestsPerDay": 10000
+  },
+  "isActive": true,
+  "usageCount": 1523,
+  "lastUsedAt": ISODate,
+  "createdAt": ISODate
+}`
+
+### **usage:**
+
+javascript
+
+`{
+  "_id": ObjectId,
+  "apiKeyId": ObjectId,
+  "chatbotId": ObjectId,
+  "endpoint": "/api/chat",
+  "timestamp": ISODate,
+  "responseTime": 342,
+  "statusCode": 200,
+  "tokensUsed": 156
+}`
