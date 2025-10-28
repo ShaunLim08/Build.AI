@@ -1,128 +1,225 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from "next/link";
+import { Bot, FileText, Plus, Sparkles, Upload } from 'lucide-react';
 
 export default function DashboardPage() {
-  // Mock data for demonstration
-  const mockChatbots = [
-    {
-      id: "1",
-      name: "Customer Support Bot",
-      description: "Handles customer inquiries and support tickets",
-      status: "active",
-      createdAt: "2024-10-01",
-      messageCount: 1250
-    },
-    {
-      id: "2",
-      name: "Product Documentation Bot",
-      description: "Answers questions about product features and documentation",
-      status: "training",
-      createdAt: "2024-10-05",
-      messageCount: 0
-    },
-    {
-      id: "3",
-      name: "FAQ Assistant",
-      description: "Provides instant answers to frequently asked questions",
-      status: "active",
-      createdAt: "2024-09-28",
-      messageCount: 890
+  const [chatbots, setChatbots] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchChatbots();
+  }, []);
+
+  const fetchChatbots = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('/api/chatbots');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch chatbots');
+      }
+
+      const data = await response.json();
+      setChatbots(data.chatbots || []);
+    } catch (err) {
+      console.error('Error fetching chatbots:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const formatDate = (date) => {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="container py-8">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading your chatbots...</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <main className="container py-8">
+          <div className="card p-8 text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <h3 className="text-lg font-medium mb-2">Error loading chatbots</h3>
+            <p className="text-muted-foreground mb-4">{error}</p>
+            <button onClick={fetchChatbots} className="btn-primary">
+              Try Again
+            </button>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       {/* Main Content */}
       <main className="container py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Your Chatbots</h1>
-          <p className="text-muted-foreground">
-            Manage and monitor your RAG-powered chatbots
-          </p>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="card p-6">
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Chatbots</h3>
-            <p className="text-3xl font-bold">{mockChatbots.length}</p>
-          </div>
-          <div className="card p-6">
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">Active Chatbots</h3>
-            <p className="text-3xl font-bold text-success">
-              {mockChatbots.filter(bot => bot.status === 'active').length}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Your Chatbots</h1>
+            <p className="text-muted-foreground">
+              Manage and monitor your RAG-powered chatbots
             </p>
           </div>
-          <div className="card p-6">
-            <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Messages</h3>
-            <p className="text-3xl font-bold">
-              {mockChatbots.reduce((sum, bot) => sum + bot.messageCount, 0).toLocaleString()}
-            </p>
-          </div>
+          <Link href="/dashboard/new" className="btn-primary flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            Create Chatbot
+          </Link>
         </div>
 
-        {/* Chatbots List */}
-        <div className="card">
-          <div className="p-6 border-b border-border">
-            <h2 className="text-xl font-semibold">All Chatbots</h2>
-          </div>
-          <div className="divide-y divide-border">
-            {mockChatbots.length === 0 ? (
-              <div className="p-8 text-center">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">🤖</span>
-                </div>
-                <h3 className="text-lg font-medium mb-2">No chatbots yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Create your first RAG chatbot to get started
-                </p>
-                <Link href="/dashboard/new" className="btn-primary">
-                  Create Your First Chatbot
-                </Link>
+        {chatbots.length === 0 ? (
+          /* Empty State */
+          <div className="card">
+            <div className="p-12 text-center">
+              <div className="w-24 h-24 bg-gradient-to-br from-purple-100 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Bot className="w-12 h-12 text-purple-600" />
               </div>
-            ) : (
-              mockChatbots.map((chatbot) => (
-                <div key={chatbot.id} className="p-6 hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-medium">{chatbot.name}</h3>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          chatbot.status === 'active'
-                            ? 'bg-success/10 text-success'
-                            : 'bg-warning/10 text-warning'
-                        }`}>
-                          {chatbot.status}
-                        </span>
-                      </div>
-                      <p className="text-muted-foreground mb-2">{chatbot.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>Created: {chatbot.createdAt}</span>
-                        <span>Messages: {chatbot.messageCount.toLocaleString()}</span>
-                      </div>
+              <h2 className="text-2xl font-bold mb-3">No chatbots yet</h2>
+              <p className="text-muted-foreground mb-2 max-w-md mx-auto">
+                Get started by creating your first AI chatbot. Upload PDFs, train with your data, and embed anywhere.
+              </p>
+              <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+                It only takes a few minutes to set up!
+              </p>
+
+              <Link href="/dashboard/new" className="btn-primary inline-flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                Create Your First Chatbot
+              </Link>
+
+              <div className="mt-12 pt-8 border-t border-border">
+                <p className="text-sm font-medium text-muted-foreground mb-4">Quick Start Guide</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                      <Plus className="w-6 h-6 text-primary" />
                     </div>
-                    <div className="flex items-center gap-2 ml-4">
-                      <Link
-                        href={`/chat/${chatbot.id}`}
-                        className="btn-secondary text-sm"
-                      >
-                        Test
-                      </Link>
-                      <Link
-                        href={`/dashboard/${chatbot.id}/embed`}
-                        className="btn-secondary text-sm"
-                      >
-                        Embed
-                      </Link>
-                      <button className="btn-secondary text-sm">
-                        Settings
-                      </button>
+                    <h4 className="font-medium text-sm mb-1">1. Create Chatbot</h4>
+                    <p className="text-xs text-muted-foreground">Give it a name and description</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                      <Upload className="w-6 h-6 text-primary" />
                     </div>
+                    <h4 className="font-medium text-sm mb-1">2. Upload Documents</h4>
+                    <p className="text-xs text-muted-foreground">Add PDFs to train your bot</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3">
+                      <Sparkles className="w-6 h-6 text-primary" />
+                    </div>
+                    <h4 className="font-medium text-sm mb-1">3. Start Chatting</h4>
+                    <p className="text-xs text-muted-foreground">Test and embed your chatbot</p>
                   </div>
                 </div>
-              ))
-            )}
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="card p-6">
+                <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Chatbots</h3>
+                <p className="text-3xl font-bold">{chatbots.length}</p>
+              </div>
+              <div className="card p-6">
+                <h3 className="text-sm font-medium text-muted-foreground mb-1">Documents Uploaded</h3>
+                <p className="text-3xl font-bold text-primary">
+                  {chatbots.reduce((sum, bot) => sum + (bot.documentCount || 0), 0)}
+                </p>
+              </div>
+              <div className="card p-6">
+                <h3 className="text-sm font-medium text-muted-foreground mb-1">Total Chunks</h3>
+                <p className="text-3xl font-bold text-success">
+                  {chatbots.reduce((sum, bot) => sum + (bot.chunkCount || 0), 0)}
+                </p>
+              </div>
+            </div>
+
+            {/* Chatbots List */}
+            <div className="card">
+              <div className="p-6 border-b border-border flex items-center justify-between">
+                <h2 className="text-xl font-semibold">All Chatbots</h2>
+                <span className="text-sm text-muted-foreground">{chatbots.length} total</span>
+              </div>
+              <div className="divide-y divide-border">
+                {chatbots.map((chatbot) => (
+                  <div key={chatbot._id} className="p-6 hover:bg-muted/50 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Bot className="w-5 h-5 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="text-lg font-medium">{chatbot.name}</h3>
+                            <p className="text-xs text-muted-foreground">
+                              Created {formatDate(chatbot.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                        <p className="text-muted-foreground mb-3 ml-13">
+                          {chatbot.description || 'No description provided'}
+                        </p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground ml-13">
+                          <div className="flex items-center gap-1">
+                            <FileText className="w-4 h-4" />
+                            <span>{chatbot.documentCount || 0} documents</span>
+                          </div>
+                          {chatbot.isPublic && (
+                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-success/10 text-success">
+                              Public
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 ml-4">
+                        <Link
+                          href={`/dashboard/${chatbot._id}`}
+                          className="btn-secondary text-sm"
+                        >
+                          Manage
+                        </Link>
+                        <Link
+                          href={`/chat/${chatbot._id}`}
+                          className="btn-primary text-sm"
+                        >
+                          Test
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
       </main>
     </div>
   );
