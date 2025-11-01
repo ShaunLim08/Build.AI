@@ -337,7 +337,7 @@ export default function ChatbotDetailPage({ params }) {
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
                   <p className="text-xs text-blue-700">
                     <strong>Tip:</strong> Uploaded documents are automatically processed and chunked for RAG retrieval.
-                    You can upload multiple documents to expand your chatbot's knowledge base.
+                    You can upload multiple documents to expand your chatbot&apos;s knowledge base.
                   </p>
                 </div>
               </div>

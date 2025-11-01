@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import { User, LogOut, Settings, ChevronDown } from 'lucide-react';
 
 export default function Navbar() {
@@ -90,6 +91,9 @@ export default function Navbar() {
 
           {/* Auth Section */}
           <div className="flex items-center space-x-4">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {loading ? (
               <div className="h-9 w-32 animate-pulse rounded-lg bg-muted"></div>
             ) : user ? (

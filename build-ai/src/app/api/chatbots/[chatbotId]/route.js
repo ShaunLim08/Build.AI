@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { Chatbot } from '@/models/Chatbot';
+import { Document } from '@/models/Document';
+import { Chunk } from '@/models/Chunk';
 
 export const runtime = 'nodejs';
 
@@ -155,12 +157,29 @@ export async function DELETE(request, { params }) {
       );
     }
 
-    // Delete chatbot (in production, you'd also delete associated documents and chunks)
+    // Cascade delete: delete all associated documents and chunks
+    console.log(`🗑️  Deleting chatbot ${chatbotId} and all associated data...`);
+
+    // Delete all chunks for this chatbot
+    const deletedChunks = await Chunk.deleteByChatbotId(chatbotId);
+    console.log(`   ✓ Deleted ${deletedChunks} chunks`);
+
+    // Delete all documents for this chatbot
+    const deletedDocuments = await Document.deleteByChatbotId(chatbotId);
+    console.log(`   ✓ Deleted ${deletedDocuments} documents`);
+
+    // Delete the chatbot itself
     await Chatbot.delete(chatbotId);
+    console.log(`   ✓ Deleted chatbot`);
 
     return NextResponse.json({
       success: true,
       message: 'Chatbot deleted successfully',
+      deletedCounts: {
+        chatbot: 1,
+        documents: deletedDocuments,
+        chunks: deletedChunks,
+      },
     });
 
   } catch (error) {

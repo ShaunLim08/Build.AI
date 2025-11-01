@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from "next/link";
-import { Bot, FileText, Plus, Sparkles, Upload } from 'lucide-react';
+import { Bot, FileText, Plus, Sparkles, Upload, Trash2 } from 'lucide-react';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [chatbots, setChatbots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,6 +41,38 @@ export default function DashboardPage() {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const handleDeleteChatbot = async (chatbotId, chatbotName) => {
+    if (!confirm(`Are you sure you want to delete "${chatbotName}"?\n\nThis will permanently delete:\n• The chatbot\n• All uploaded documents\n• All generated chunks and embeddings\n\nThis action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/chatbots/${chatbotId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete chatbot');
+      }
+
+      const data = await response.json();
+      console.log(`✅ Deleted chatbot "${chatbotName}":`);
+      console.log(`   - Documents: ${data.deletedCounts?.documents || 0}`);
+      console.log(`   - Chunks: ${data.deletedCounts?.chunks || 0}`);
+
+      // Remove chatbot from state
+      setChatbots(prev => prev.filter(bot => bot._id !== chatbotId));
+
+      // Show success message
+      alert(`Successfully deleted "${chatbotName}" and all associated data.`);
+
+    } catch (error) {
+      console.error('Error deleting chatbot:', error);
+      alert(`Failed to delete chatbot: ${error.message}`);
+    }
   };
 
   if (loading) {
@@ -212,6 +246,13 @@ export default function DashboardPage() {
                         >
                           Test
                         </Link>
+                        <button
+                          onClick={() => handleDeleteChatbot(chatbot._id, chatbot.name)}
+                          className="p-2 text-muted-foreground hover:text-error hover:bg-red-50 rounded transition-colors"
+                          title="Delete chatbot"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   </div>

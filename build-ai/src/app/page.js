@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { LogoCarousel } from '@/components/ui/logo-carousel';
 import {
   FileText,
   Globe,
@@ -38,6 +39,28 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
 
+  // Technology logos data
+  const techLogos = [
+    {
+      name: 'Google Gemini',
+      src: '/gemini.png',
+      width: 180,
+      height: 60,
+    },
+    {
+      name: 'MongoDB',
+      src: '/mongodb.png',
+      width: 160,
+      height: 60,
+    },
+    {
+      name: 'Next.js',
+      src: '/nextjs.png',
+      width: 140,
+      height: 60,
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -60,9 +83,9 @@ export default function Home() {
             Build intelligent chatbots with your data
           </h1>
           <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto text-balance leading-relaxed fade-in-up [animation-delay:200ms]">
-            An AI-powered chatbot builder that uses RAG (Retrieval-Augmented
-            Generation) to create custom chatbots trained on PDFs, websites, and
-            databases.
+            Create intelligent AI chatbots powered by Google Gemini and RAG
+            technology. Train on your PDFs, websites, and MongoDB databases to
+            deliver accurate, context-aware responses.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center fade-in-up [animation-delay:300ms]">
             <Button size="lg" asChild className="text-base px-8">
@@ -89,26 +112,9 @@ export default function Home() {
       <section id="technology" className="border-y border-border bg-muted/30">
         <div className="container mx-auto px-4 py-16">
           <p className="text-center text-sm text-muted-foreground mb-8">
-            Built with modern technologies
+            Powered by cutting-edge AI technologies
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-            <div className="flex items-center gap-2 text-lg font-semibold opacity-70 hover:opacity-100 transition-opacity">
-              <Brain className="w-5 h-5" />
-              <span>OpenAI</span>
-            </div>
-            <div className="flex items-center gap-2 text-lg font-semibold opacity-70 hover:opacity-100 transition-opacity">
-              <Database className="w-5 h-5" />
-              <span>MongoDB</span>
-            </div>
-            <div className="flex items-center gap-2 text-lg font-semibold opacity-70 hover:opacity-100 transition-opacity">
-              <Code2 className="w-5 h-5" />
-              <span>Next.js</span>
-            </div>
-            <div className="flex items-center gap-2 text-lg font-semibold opacity-70 hover:opacity-100 transition-opacity">
-              <Zap className="w-5 h-5" />
-              <span>LangChain</span>
-            </div>
-          </div>
+          <LogoCarousel logos={techLogos} speed="slow" pauseOnHover={true} />
         </div>
       </section>
 
@@ -125,10 +131,11 @@ export default function Home() {
             <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
               <FileText className="w-6 h-6 text-accent" />
             </div>
-            <h3 className="text-xl font-semibold mb-3">PDF Processing</h3>
+            <h3 className="text-xl font-semibold mb-3">Document Processing</h3>
             <p className="text-muted-foreground leading-relaxed">
-              Upload PDF documents and automatically extract, chunk, and index
-              content using vector embeddings for accurate semantic search.
+              Upload PDFs and text documents. Content is automatically extracted,
+              intelligently chunked, and embedded using Gemini&apos;s text-embedding
+              model for precise semantic retrieval.
             </p>
           </Card>
           <Card className="p-8 hover:shadow-lg transition-all hover:-translate-y-1 group">
@@ -137,18 +144,20 @@ export default function Home() {
             </div>
             <h3 className="text-xl font-semibold mb-3">Website Scraping</h3>
             <p className="text-muted-foreground leading-relaxed">
-              Crawl and scrape website content with intelligent parsing. Keep
-              your chatbot knowledge base updated with the latest web data.
+              Scrape single or multiple URLs with intelligent content extraction.
+              Supports article pages, documentation sites, and knowledge bases.
+              Automatically processed into your chatbot&apos;s knowledge.
             </p>
           </Card>
           <Card className="p-8 hover:shadow-lg transition-all hover:-translate-y-1 group">
             <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
               <Database className="w-6 h-6 text-accent" />
             </div>
-            <h3 className="text-xl font-semibold mb-3">MongoDB Integration</h3>
+            <h3 className="text-xl font-semibold mb-3">MongoDB Data Import</h3>
             <p className="text-muted-foreground leading-relaxed">
-              Connect to MongoDB databases for real-time data access. Build
-              chatbots that can query and retrieve live database information.
+              Connect to external MongoDB databases and import collections
+              directly. Preview schemas, test connections, and bulk import
+              documents as knowledge sources.
             </p>
           </Card>
           <Card className="p-8 hover:shadow-lg transition-all hover:-translate-y-1 group">
@@ -157,8 +166,9 @@ export default function Home() {
             </div>
             <h3 className="text-xl font-semibold mb-3">RAG Architecture</h3>
             <p className="text-muted-foreground leading-relaxed">
-              Retrieval-Augmented Generation combines vector search with LLMs to
-              provide accurate, context-aware responses from your data.
+              Retrieval-Augmented Generation powered by Google&apos;s Gemini AI.
+              Combines semantic vector search with advanced language models for
+              accurate, context-aware responses.
             </p>
           </Card>
           <Card className="p-8 hover:shadow-lg transition-all hover:-translate-y-1 group">
@@ -212,8 +222,9 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-3">Process & Train</h3>
               <p className="text-muted-foreground leading-relaxed">
-                Our RAG pipeline processes your data, creates embeddings, and
-                indexes them for semantic search.
+                Content is automatically chunked and converted into vector
+                embeddings using Gemini, then stored in MongoDB for lightning-fast
+                semantic search.
               </p>
             </div>
             <div className="text-center">
