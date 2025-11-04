@@ -16,7 +16,14 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showMetadata, setShowMetadata] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
   const messagesEndRef = useRef(null);
+
+  // Generate sessionId on mount
+  useEffect(() => {
+    const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    setSessionId(newSessionId);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -58,6 +65,7 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
         body: JSON.stringify({
           message: userMessage,
           conversationHistory: history,
+          sessionId: sessionId,
         }),
       });
 
@@ -105,6 +113,9 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
   const clearChat = () => {
     setMessages([]);
     setError(null);
+    // Generate new sessionId for new conversation
+    const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    setSessionId(newSessionId);
   };
 
   const formatTimestamp = (timestamp) => {

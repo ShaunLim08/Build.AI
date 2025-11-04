@@ -1,15 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from "next/link";
-import { Bot, FileText, Plus, Sparkles, Upload, Trash2 } from 'lucide-react';
+import { Bot, FileText, Plus, Sparkles, Upload, Trash2, Search, Filter, SortAsc, Grid, List, Code } from 'lucide-react';
 
 export default function DashboardPage() {
   const router = useRouter();
   const [chatbots, setChatbots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [sortBy, setSortBy] = useState('date-desc');
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
 
   useEffect(() => {
     fetchChatbots();
@@ -74,6 +78,46 @@ export default function DashboardPage() {
       alert(`Failed to delete chatbot: ${error.message}`);
     }
   };
+
+  // Filter and sort chatbots
+  const filteredAndSortedChatbots = useMemo(() => {
+    let result = [...chatbots];
+
+    // Apply search filter
+    if (searchQuery) {
+      result = result.filter(bot =>
+        bot.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (bot.description && bot.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
+
+    // Apply category filter
+    if (filterCategory !== 'all') {
+      result = result.filter(bot => bot.category === filterCategory);
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      switch (sortBy) {
+        case 'date-desc':
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        case 'date-asc':
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        case 'name-asc':
+          return a.name.localeCompare(b.name);
+        case 'name-desc':
+          return b.name.localeCompare(a.name);
+        case 'documents-desc':
+          return (b.documentCount || 0) - (a.documentCount || 0);
+        case 'documents-asc':
+          return (a.documentCount || 0) - (b.documentCount || 0);
+        default:
+          return 0;
+      }
+    });
+
+    return result;
+  }, [chatbots, searchQuery, filterCategory, sortBy]);
 
   if (loading) {
     return (
@@ -196,14 +240,175 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Chatbots List */}
-            <div className="card">
-              <div className="p-6 border-b border-border flex items-center justify-between">
-                <h2 className="text-xl font-semibold">All Chatbots</h2>
-                <span className="text-sm text-muted-foreground">{chatbots.length} total</span>
+            {/* Search, Filter, and Sort Controls */}
+            <div className="card p-4 mb-6">
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* Search */}
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder="Search chatbots..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-12 pr-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background text-foreground"
+                  />
+                </div>
+
+                {/* Filter by Category */}
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-muted-foreground" />
+                  <select
+                    value={filterCategory}
+                    onChange={(e) => setFilterCategory(e.target.value)}
+                    className="input"
+                  >
+                    <option value="all">All Categories</option>
+                    <option value="general">🤖 General Purpose</option>
+                    <option value="customer-service">💬 Customer Service</option>
+                    <option value="ecommerce">🛒 E-commerce</option>
+                    <option value="education">📚 Education</option>
+                    <option value="healthcare">🏥 Healthcare</option>
+                    <option value="finance">💰 Finance</option>
+                    <option value="hr">👥 Human Resources</option>
+                    <option value="marketing">📢 Marketing</option>
+                    <option value="technical">🔧 Technical Support</option>
+                    <option value="other">⚡ Other</option>
+                  </select>
+                </div>
+
+                {/* Sort By */}
+                <div className="flex items-center gap-2">
+                  <SortAsc className="w-4 h-4 text-muted-foreground" />
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="input"
+                  >
+                    <option value="date-desc">Newest First</option>
+                    <option value="date-asc">Oldest First</option>
+                    <option value="name-asc">Name (A-Z)</option>
+                    <option value="name-desc">Name (Z-A)</option>
+                    <option value="documents-desc">Most Documents</option>
+                    <option value="documents-asc">Fewest Documents</option>
+                  </select>
+                </div>
+
+                {/* View Mode Toggle */}
+                <div className="flex items-center gap-1 border border-border rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded transition-colors ${
+                      viewMode === 'list' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+                    }`}
+                    title="List view"
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded transition-colors ${
+                      viewMode === 'grid' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
+                    }`}
+                    title="Grid view"
+                  >
+                    <Grid className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-              <div className="divide-y divide-border">
-                {chatbots.map((chatbot) => (
+            </div>
+
+            {/* Chatbots List/Grid */}
+            {filteredAndSortedChatbots.length === 0 ? (
+              <div className="card p-12 text-center">
+                <p className="text-muted-foreground">No chatbots match your search criteria.</p>
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setFilterCategory('all');
+                  }}
+                  className="btn-secondary mt-4"
+                >
+                  Clear Filters
+                </button>
+              </div>
+            ) : viewMode === 'grid' ? (
+              /* Grid View */
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredAndSortedChatbots.map((chatbot) => (
+                  <div key={chatbot._id} className="card p-6 hover:shadow-lg transition-shadow">
+                    <div className="flex flex-col h-full">
+                      <div className="flex items-start gap-3 mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <Bot className="w-6 h-6 text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold truncate">{chatbot.name}</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(chatbot.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-3">
+                        {chatbot.description || 'No description provided'}
+                      </p>
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground mb-4">
+                        <div className="flex items-center gap-1">
+                          <FileText className="w-3 h-3" />
+                          <span>{chatbot.documentCount || 0}</span>
+                        </div>
+                        {chatbot.isPublic && (
+                          <span className="px-2 py-1 rounded-full bg-success/10 text-success font-medium">
+                            Public
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/dashboard/${chatbot._id}`}
+                            className="btn-secondary text-xs flex-1 text-center"
+                          >
+                            Manage
+                          </Link>
+                          <Link
+                            href={`/chat/${chatbot._id}`}
+                            className="btn-primary text-xs flex-1 text-center"
+                          >
+                            Test
+                          </Link>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/dashboard/${chatbot._id}/embed`}
+                            className="btn-secondary text-xs flex-1 text-center flex items-center justify-center gap-1"
+                          >
+                            <Code className="w-3 h-3" />
+                            Embed
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteChatbot(chatbot._id, chatbot.name)}
+                            className="px-3 py-2 text-xs text-muted-foreground hover:text-error hover:bg-red-50 rounded transition-colors flex items-center gap-1"
+                            title="Delete chatbot"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              /* List View */
+              <div className="card">
+                <div className="p-6 border-b border-border flex items-center justify-between">
+                  <h2 className="text-xl font-semibold">All Chatbots</h2>
+                  <span className="text-sm text-muted-foreground">{filteredAndSortedChatbots.length} of {chatbots.length}</span>
+                </div>
+                <div className="divide-y divide-border">
+                  {filteredAndSortedChatbots.map((chatbot) => (
                   <div key={chatbot._id} className="p-6 hover:bg-muted/50 transition-colors">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
@@ -241,6 +446,13 @@ export default function DashboardPage() {
                           Manage
                         </Link>
                         <Link
+                          href={`/dashboard/${chatbot._id}/embed`}
+                          className="btn-secondary text-sm flex items-center gap-1"
+                        >
+                          <Code className="w-4 h-4" />
+                          Embed
+                        </Link>
+                        <Link
                           href={`/chat/${chatbot._id}`}
                           className="btn-primary text-sm"
                         >
@@ -256,9 +468,10 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
       </main>

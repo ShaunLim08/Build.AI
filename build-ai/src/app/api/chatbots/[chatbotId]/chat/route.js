@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Chatbot } from '@/models/Chatbot';
 import { Chunk } from '@/models/Chunk';
+import { Conversation } from '@/models/Conversation';
 import { generateEmbedding } from '@/lib/embeddings';
 import {
   optimizeQuery,
@@ -11,21 +12,42 @@ import {
   calculateRelevanceMetrics,
 } from '@/lib/rag';
 import { generateChatCompletion, streamChatCompletion } from '@/lib/gemini';
+import { rateLimitWidget } from '@/lib/rateLimit';
 
 /**
  * POST /api/chatbots/[chatbotId]/chat
  * Complete RAG pipeline: retrieve context and generate response
+ *
+ * NOTE: This endpoint currently lacks authentication.
+ * TODO: Add authentication check or verify chatbot is public
  */
 export async function POST(request, { params }) {
   const startTime = Date.now();
 
   try {
     const { chatbotId } = params;
+
+    // Apply rate limiting (using widget limits for now since no auth)
+    const rateLimitResult = await rateLimitWidget(request, chatbotId);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: rateLimitResult.error,
+        },
+        {
+          status: 429,
+          headers: rateLimitResult.headers,
+        }
+      );
+    }
+
     const body = await request.json();
 
     const {
       message,
       conversationHistory = [],
+      sessionId,
       stream = false,
       retrievalOptions = {},
       generationOptions = {},
@@ -206,6 +228,57 @@ export async function POST(request, { params }) {
       console.log(`✅ RAG PIPELINE COMPLETED in ${totalTime}ms`);
       console.log('='.repeat(80));
       console.log('');
+
+      // Step 11: Save conversation if sessionId provided
+      if (sessionId) {
+        try {
+          console.log('📌 STEP 9: Saving conversation...');
+
+          // Check if conversation exists
+          let conversation = await Conversation.findBySessionId(sessionId);
+
+          if (!conversation) {
+            // Create new conversation with user message
+            conversation = await Conversation.create({
+              chatbotId,
+              sessionId,
+              messages: [{
+                role: 'user',
+                content: originalQuery,
+                timestamp: new Date()
+              }]
+            });
+            console.log('✅ New conversation created');
+          } else {
+            // Add user message to existing conversation
+            await Conversation.addMessage(sessionId, {
+              role: 'user',
+              content: originalQuery
+            });
+            console.log('✅ User message added to conversation');
+          }
+
+          // Add assistant message with sources
+          const sourceChunkIds = relevantChunks.map(chunk => chunk._id);
+          await Conversation.addMessage(sessionId, {
+            role: 'assistant',
+            content: responseText,
+            sources: sourceChunkIds,
+            metadata: {
+              model: completion.model,
+              usage: usage,
+              processingTime: totalTime,
+              qualityScore: metrics.qualityScore,
+              confidence: metrics.confidence
+            }
+          });
+          console.log('✅ Assistant message saved with sources');
+          console.log('');
+        } catch (convError) {
+          console.error('⚠️  Failed to save conversation:', convError);
+          // Don't fail the request if conversation saving fails
+        }
+      }
 
       // Return complete response
       return NextResponse.json({

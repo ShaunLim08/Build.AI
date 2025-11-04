@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Bot, FileText, Plus, Trash2, Settings, ArrowLeft, Loader2, Globe, Database } from 'lucide-react';
+import { Bot, FileText, Plus, Trash2, Settings, ArrowLeft, Loader2, Globe, Database, Edit, Save, X, Code } from 'lucide-react';
 import FileUploader from '@/components/FileUploader';
 import WebScraper from '@/components/WebScraper';
 import MongoDBConnector from '@/components/MongoDBConnector';
+import ConversationHistory from '@/components/ConversationHistory';
 
 export default function ChatbotDetailPage({ params }) {
   const router = useRouter();
@@ -16,6 +17,16 @@ export default function ChatbotDetailPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('documents');
+  const [isEditingSettings, setIsEditingSettings] = useState(false);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsForm, setSettingsForm] = useState({
+    name: '',
+    description: '',
+    systemInstruction: '',
+    temperature: 0.7,
+    maxTokens: 2000,
+    responseStyle: 'balanced'
+  });
 
   useEffect(() => {
     params.then(resolvedParams => {
@@ -35,6 +46,16 @@ export default function ChatbotDetailPage({ params }) {
       }
       const chatbotData = await chatbotResponse.json();
       setChatbot(chatbotData.chatbot);
+
+      // Initialize settings form
+      setSettingsForm({
+        name: chatbotData.chatbot.name || '',
+        description: chatbotData.chatbot.description || '',
+        systemInstruction: chatbotData.chatbot.systemInstruction || '',
+        temperature: chatbotData.chatbot.settings?.temperature || 0.7,
+        maxTokens: chatbotData.chatbot.settings?.maxTokens || 2000,
+        responseStyle: chatbotData.chatbot.settings?.responseStyle || 'balanced'
+      });
 
       // Fetch documents
       const docsResponse = await fetch(`/api/chatbots/${id}/documents`);
@@ -106,6 +127,58 @@ export default function ChatbotDetailPage({ params }) {
     }
   };
 
+  const handleSaveSettings = async () => {
+    try {
+      setSavingSettings(true);
+
+      const response = await fetch(`/api/chatbots/${chatbotId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: settingsForm.name,
+          description: settingsForm.description,
+          systemInstruction: settingsForm.systemInstruction,
+          settings: {
+            temperature: parseFloat(settingsForm.temperature),
+            maxTokens: parseInt(settingsForm.maxTokens),
+            responseStyle: settingsForm.responseStyle
+          }
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to update settings');
+      }
+
+      const data = await response.json();
+      setChatbot(data.chatbot);
+      setIsEditingSettings(false);
+      alert('Settings updated successfully!');
+
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      alert(`Failed to update settings: ${error.message}`);
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    // Reset form to current chatbot values
+    setSettingsForm({
+      name: chatbot.name || '',
+      description: chatbot.description || '',
+      systemInstruction: chatbot.systemInstruction || '',
+      temperature: chatbot.settings?.temperature || 0.7,
+      maxTokens: chatbot.settings?.maxTokens || 2000,
+      responseStyle: chatbot.settings?.responseStyle || 'balanced'
+    });
+    setIsEditingSettings(false);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -171,6 +244,13 @@ export default function ChatbotDetailPage({ params }) {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Link
+                href={`/dashboard/${chatbot._id}/embed`}
+                className="btn-secondary flex items-center gap-2"
+              >
+                <Code className="w-4 h-4" />
+                Embed
+              </Link>
               <Link
                 href={`/chat/${chatbot._id}`}
                 className="btn-primary flex items-center gap-2"
@@ -244,6 +324,16 @@ export default function ChatbotDetailPage({ params }) {
                 }`}
               >
                 MongoDB Import
+              </button>
+              <button
+                onClick={() => setActiveTab('conversations')}
+                className={`py-4 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'conversations'
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Conversations
               </button>
               <button
                 onClick={() => setActiveTab('settings')}
@@ -363,41 +453,170 @@ export default function ChatbotDetailPage({ params }) {
               </div>
             )}
 
+            {activeTab === 'conversations' && (
+              <div>
+                <ConversationHistory chatbotId={chatbot._id} />
+              </div>
+            )}
+
             {activeTab === 'settings' && (
               <div>
-                <h3 className="text-lg font-semibold mb-4">Chatbot Settings</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Chatbot Settings</h3>
+                  {!isEditingSettings ? (
+                    <button
+                      onClick={() => setIsEditingSettings(true)}
+                      className="btn-secondary flex items-center gap-2"
+                    >
+                      <Edit className="w-4 h-4" />
+                      Edit Settings
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={handleCancelEdit}
+                        disabled={savingSettings}
+                        className="btn-secondary flex items-center gap-2"
+                      >
+                        <X className="w-4 h-4" />
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSaveSettings}
+                        disabled={savingSettings}
+                        className="btn-primary flex items-center gap-2"
+                      >
+                        {savingSettings ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4" />
+                            Save Changes
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Name</label>
-                    <input
-                      type="text"
-                      value={chatbot.name}
-                      disabled
-                      className="input opacity-60 cursor-not-allowed"
-                    />
+                  {/* Basic Information */}
+                  <div className="border-b border-border pb-6">
+                    <h4 className="text-sm font-semibold text-muted-foreground uppercase mb-4">Basic Information</h4>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Name *</label>
+                        <input
+                          type="text"
+                          value={settingsForm.name}
+                          onChange={(e) => setSettingsForm(prev => ({ ...prev, name: e.target.value }))}
+                          disabled={!isEditingSettings}
+                          className={`input ${!isEditingSettings && 'opacity-60 cursor-not-allowed'}`}
+                          placeholder="My Chatbot"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Description</label>
+                        <textarea
+                          value={settingsForm.description}
+                          onChange={(e) => setSettingsForm(prev => ({ ...prev, description: e.target.value }))}
+                          disabled={!isEditingSettings}
+                          rows={3}
+                          className={`input resize-none ${!isEditingSettings && 'opacity-60 cursor-not-allowed'}`}
+                          placeholder="A helpful chatbot that answers questions about..."
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Description</label>
-                    <textarea
-                      value={chatbot.description || ''}
-                      disabled
-                      rows={3}
-                      className="input resize-none opacity-60 cursor-not-allowed"
-                    />
+
+                  {/* System Instructions */}
+                  <div className="border-b border-border pb-6">
+                    <h4 className="text-sm font-semibold text-muted-foreground uppercase mb-4">System Instructions</h4>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        System Prompt
+                        <span className="text-xs text-muted-foreground font-normal ml-2">
+                          ({settingsForm.systemInstruction.length} characters)
+                        </span>
+                      </label>
+                      <textarea
+                        value={settingsForm.systemInstruction}
+                        onChange={(e) => setSettingsForm(prev => ({ ...prev, systemInstruction: e.target.value }))}
+                        disabled={!isEditingSettings}
+                        rows={6}
+                        className={`input resize-none ${!isEditingSettings && 'opacity-60 cursor-not-allowed'}`}
+                        placeholder="You are a helpful assistant that answers questions based on the provided documents."
+                      />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Define how your chatbot should behave and respond to users.
+                      </p>
+                    </div>
                   </div>
+
+                  {/* Configuration */}
                   <div>
-                    <label className="block text-sm font-medium mb-2">System Instruction</label>
-                    <textarea
-                      value={chatbot.systemInstruction || ''}
-                      disabled
-                      rows={4}
-                      className="input resize-none opacity-60 cursor-not-allowed"
-                    />
-                  </div>
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                    <p className="text-xs text-yellow-700">
-                      Settings editing will be available in a future update. For now, settings are read-only.
-                    </p>
+                    <h4 className="text-sm font-semibold text-muted-foreground uppercase mb-4">Configuration</h4>
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Temperature: {settingsForm.temperature}
+                        </label>
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.1"
+                          value={settingsForm.temperature}
+                          onChange={(e) => setSettingsForm(prev => ({ ...prev, temperature: e.target.value }))}
+                          disabled={!isEditingSettings}
+                          className={`w-full ${!isEditingSettings && 'opacity-60 cursor-not-allowed'}`}
+                        />
+                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                          <span>More focused (0)</span>
+                          <span>More creative (1)</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Controls randomness in responses. Lower values make output more focused and deterministic.
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Max Tokens (Response Length)</label>
+                        <input
+                          type="number"
+                          min="100"
+                          max="4000"
+                          step="100"
+                          value={settingsForm.maxTokens}
+                          onChange={(e) => setSettingsForm(prev => ({ ...prev, maxTokens: e.target.value }))}
+                          disabled={!isEditingSettings}
+                          className={`input ${!isEditingSettings && 'opacity-60 cursor-not-allowed'}`}
+                        />
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Maximum length of responses (100-4000 tokens). Higher values allow longer responses.
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Response Style</label>
+                        <select
+                          value={settingsForm.responseStyle}
+                          onChange={(e) => setSettingsForm(prev => ({ ...prev, responseStyle: e.target.value }))}
+                          disabled={!isEditingSettings}
+                          className={`input ${!isEditingSettings && 'opacity-60 cursor-not-allowed'}`}
+                        >
+                          <option value="concise">Concise - Brief, to-the-point answers</option>
+                          <option value="balanced">Balanced - Moderate detail and context</option>
+                          <option value="detailed">Detailed - Comprehensive explanations</option>
+                        </select>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Determines how verbose the chatbot's responses should be.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
