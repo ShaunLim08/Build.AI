@@ -9,6 +9,7 @@ export default function EmbedPage({ params }) {
   const [activeTab, setActiveTab] = useState('widget');
   const [copied, setCopied] = useState(false);
   const [chatbotId, setChatbotId] = useState(null);
+  const [baseUrl, setBaseUrl] = useState('http://localhost:3000');
 
   // API Key management
   const [apiKeys, setApiKeys] = useState([]);
@@ -32,6 +33,27 @@ export default function EmbedPage({ params }) {
       setChatbotId(resolvedParams.id);
     });
   }, [params]);
+
+  // Set the base URL based on environment
+  useEffect(() => {
+    // If NEXT_PUBLIC_API_URL is set and not localhost:5000, use it
+    if (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL !== 'http://localhost:5000') {
+      setBaseUrl(process.env.NEXT_PUBLIC_API_URL);
+      return;
+    }
+
+    // If in browser and in production (vercel.app domain), use current origin
+    if (typeof window !== 'undefined') {
+      const origin = window.location.origin;
+      if (origin.includes('vercel.app') || origin.includes('build-ai-shaun')) {
+        setBaseUrl(origin);
+        return;
+      }
+    }
+
+    // Default to localhost for development
+    setBaseUrl('http://localhost:3000');
+  }, []);
 
   // Fetch API keys
   const fetchApiKeys = useCallback(async () => {
@@ -58,8 +80,6 @@ export default function EmbedPage({ params }) {
   if (!chatbotId) {
     return <div>Loading...</div>;
   }
-
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
   // Generate new API key
   const handleGenerateApiKey = async () => {
