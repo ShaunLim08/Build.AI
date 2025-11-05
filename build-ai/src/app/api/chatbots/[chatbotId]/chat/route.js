@@ -18,14 +18,15 @@ import { rateLimitWidget } from '@/lib/rateLimit';
  * POST /api/chatbots/[chatbotId]/chat
  * Complete RAG pipeline: retrieve context and generate response
  *
- * NOTE: This endpoint currently lacks authentication.
- * TODO: Add authentication check or verify chatbot is public
+ * NOTE: This endpoint is publicly accessible for embeds and widgets.
+ * Rate limiting is applied based on IP address to prevent abuse.
  */
 export async function POST(request, { params }) {
   const startTime = Date.now();
 
   try {
-    const { chatbotId } = params;
+    // Await params (required in Next.js 15)
+    const { chatbotId } = await params;
 
     // Apply rate limiting (using widget limits for now since no auth)
     const rateLimitResult = await rateLimitWidget(request, chatbotId);

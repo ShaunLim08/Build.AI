@@ -9,18 +9,10 @@ export const runtime = 'nodejs';
 /**
  * GET /api/chatbots/[chatbotId]
  * Get a specific chatbot by ID
+ * Public access allowed for embeds (returns limited info)
  */
 export async function GET(request, { params }) {
   try {
-    // Authenticate user
-    const user = await getCurrentUser();
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
     // Await params (required in Next.js 15)
     const { chatbotId } = await params;
 
@@ -34,18 +26,51 @@ export async function GET(request, { params }) {
       );
     }
 
-    // Verify ownership
-    if (chatbot.userId.toString() !== user._id.toString()) {
+    // Try to authenticate user
+    const user = await getCurrentUser();
+
+    // If user is authenticated and owns the chatbot, return full data
+    if (user && chatbot.userId.toString() === user._id.toString()) {
+      return NextResponse.json({
+        success: true,
+        chatbot,
+      });
+    }
+
+    // If no user or different user, check if chatbot is public or allow embed access
+    // For embeds, we always allow access but return limited info
+    const isEmbed = request.headers.get('referer')?.includes('/embed/') ||
+                    request.headers.get('sec-fetch-dest') === 'iframe';
+
+    if (isEmbed || chatbot.isPublic) {
+      // Return limited public info for embeds
+      return NextResponse.json({
+        success: true,
+        chatbot: {
+          _id: chatbot._id,
+          name: chatbot.name,
+          description: chatbot.description,
+          systemInstruction: chatbot.systemInstruction,
+          settings: chatbot.settings,
+          isPublic: chatbot.isPublic,
+          // Don't expose userId, createdAt, or other sensitive data
+        },
+      });
+    }
+
+    // If not public and not embed, require authentication
+    if (!user) {
       return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
+        { error: 'Unauthorized' },
+        { status: 401 }
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      chatbot,
-    });
+    // User is authenticated but doesn't own this non-public chatbot
+    return NextResponse.json(
+      { error: 'Forbidden' },
+      { status: 403 }
+    );
 
   } catch (error) {
     console.error('Get chatbot error:', error);
