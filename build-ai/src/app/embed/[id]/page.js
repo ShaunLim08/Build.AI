@@ -131,11 +131,24 @@ export default function EmbedPage({ params }) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to get response');
+        let errorMessage = 'Failed to get response';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch (e) {
+          // If JSON parsing fails, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error('JSON parsing error:', jsonError);
+        throw new Error('Invalid response from server. Please try again.');
+      }
 
       // Add assistant message
       const assistantMessage = {
@@ -158,11 +171,23 @@ export default function EmbedPage({ params }) {
     } catch (error) {
       console.error('Error sending message:', error);
 
-      // Add error message
+      // Add user-friendly error message
+      let errorContent = error.message;
+
+      // Provide helpful context for common errors
+      if (error.message.includes('No knowledge base found')) {
+        errorContent = "This chatbot doesn't have any documents uploaded yet. Please contact the owner to add documents first.";
+      } else if (error.message.includes('Invalid response')) {
+        errorContent = "Sorry, there was a problem processing your request. Please try again.";
+      } else if (error.message.includes('Failed to get response')) {
+        errorContent = "Sorry, I couldn't process your message. Please try again in a moment.";
+      }
+
       const errorMessage = {
-        role: 'error',
-        content: `Error: ${error.message}`,
+        role: 'assistant',
+        content: `⚠️ ${errorContent}`,
         timestamp: new Date().toISOString(),
+        error: true,
       };
 
       setMessages(prev => [...prev, errorMessage]);
@@ -306,11 +331,13 @@ export default function EmbedPage({ params }) {
                           backgroundColor: message.role === 'user'
                             ? styling.button
                             : message.error
-                            ? '#dc2626'
+                            ? '#ef444433'
                             : adjustColor(styling.bg, 10),
                           color: styling.text,
-                          border: message.role === 'assistant' && !message.error
-                            ? `1px solid ${adjustColor(styling.bg, -20)}`
+                          border: message.role === 'assistant'
+                            ? message.error
+                              ? `1px solid #ef4444`
+                              : `1px solid ${adjustColor(styling.bg, -20)}`
                             : 'none'
                         }}
                       >

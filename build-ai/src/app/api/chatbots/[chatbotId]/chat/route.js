@@ -123,6 +123,19 @@ export async function POST(request, { params }) {
     }
     console.log('');
 
+    // Step 5: Check if any chunks were found
+    if (retrievedChunks.length === 0) {
+      console.log('⚠️  No documents found for this chatbot');
+      console.log('   The chatbot needs documents to be uploaded first.');
+      console.log('');
+
+      return NextResponse.json({
+        success: false,
+        error: 'No knowledge base found',
+        message: 'This chatbot doesn\'t have any documents uploaded yet. Please upload documents first.',
+      }, { status: 400 });
+    }
+
     // Step 5: Calculate relevance metrics
     const metrics = calculateRelevanceMetrics(relevantChunks);
     console.log('📊 Relevance Metrics:');

@@ -3,9 +3,6 @@ import { getCurrentUser } from '@/lib/auth';
 import { Document } from '@/models/Document';
 import { Chunk } from '@/models/Chunk';
 import { Chatbot } from '@/models/Chatbot';
-import { writeFile, mkdir, readFile } from 'fs/promises';
-import { existsSync } from 'fs';
-import path from 'path';
 import { ObjectId } from 'mongodb';
 import { generateEmbedding } from '@/lib/embeddings';
 
@@ -84,9 +81,9 @@ function splitTextIntoChunks(text, filename, chunkSize = CHUNK_SIZE) {
 }
 
 /**
- * Extracts text from PDF file using pdf2json
+ * Extracts text from PDF buffer using pdf2json (serverless-compatible)
  */
-async function extractTextFromPDF(filepath) {
+async function extractTextFromPDF(buffer) {
   return new Promise((resolve, reject) => {
     try {
       const PDFParser = require('pdf2json');
@@ -147,8 +144,8 @@ async function extractTextFromPDF(filepath) {
         }
       });
 
-      // Load and parse the PDF file
-      pdfParser.loadPDF(filepath);
+      // Parse PDF from buffer instead of file
+      pdfParser.parseBuffer(buffer);
 
     } catch (error) {
       console.error('PDF parser initialization error:', error);
@@ -158,10 +155,10 @@ async function extractTextFromPDF(filepath) {
 }
 
 /**
- * Extracts text from TXT file
+ * Extracts text from TXT buffer (serverless-compatible)
  */
-async function extractTextFromTXT(filepath) {
-  const text = await readFile(filepath, 'utf-8');
+async function extractTextFromTXT(buffer) {
+  const text = buffer.toString('utf-8');
   return {
     text,
     pageCount: 1,
@@ -170,30 +167,12 @@ async function extractTextFromTXT(filepath) {
 }
 
 /**
- * Saves file to disk
+ * Converts file to buffer (serverless-compatible - no disk writes)
  */
-async function saveFile(file, chatbotId) {
+async function fileToBuffer(file) {
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
-
-  // Create upload directory if it doesn't exist
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads', chatbotId);
-  if (!existsSync(uploadDir)) {
-    await mkdir(uploadDir, { recursive: true });
-  }
-
-  // Generate unique filename
-  const timestamp = Date.now();
-  const filename = `${timestamp}-${file.name}`;
-  const filepath = path.join(uploadDir, filename);
-
-  // Save file
-  await writeFile(filepath, buffer);
-
-  return {
-    filepath,
-    url: `/uploads/${chatbotId}/${filename}`,
-  };
+  return buffer;
 }
 
 /**
@@ -244,8 +223,8 @@ export async function POST(request, { params }) {
       );
     }
 
-    // Save file to disk
-    const { url, filepath } = await saveFile(file, chatbotId);
+    // Convert file to buffer (no disk writes for serverless compatibility)
+    const buffer = await fileToBuffer(file);
 
     // Extract text based on file type
     let extractedData;
@@ -254,13 +233,13 @@ export async function POST(request, { params }) {
     console.log(`\n📄 Processing file: ${file.name} (${file.type})`);
 
     if (file.type === 'application/pdf') {
-      extractedData = await extractTextFromPDF(filepath);
+      extractedData = await extractTextFromPDF(buffer);
       console.log(`✅ PDF parsed successfully:`);
       console.log(`   - Pages: ${extractedData.pageCount}`);
       console.log(`   - Text length: ${extractedData.text.length} characters`);
       console.log(`   - First 200 chars: ${extractedData.text.substring(0, 200)}...`);
     } else if (file.type === 'text/plain') {
-      extractedData = await extractTextFromTXT(filepath);
+      extractedData = await extractTextFromTXT(buffer);
       console.log(`✅ TXT file parsed successfully:`);
       console.log(`   - Text length: ${extractedData.text.length} characters`);
       console.log(`   - First 200 chars: ${extractedData.text.substring(0, 200)}...`);
@@ -276,12 +255,12 @@ export async function POST(request, { params }) {
     wordCount = extractedData.text.split(/\s+/).filter(word => word.length > 0).length;
     console.log(`   - Word count: ${wordCount.toLocaleString()}`);
 
-    // Create document record
+    // Create document record (no URL since we don't save files in serverless)
     const document = await Document.create({
       chatbotId: new ObjectId(chatbotId),
       filename: file.name,
       type: file.type,
-      url,
+      url: null, // No file storage in serverless - file is processed in memory
       pageCount: extractedData.pageCount,
       wordCount,
       status: 'processing',

@@ -8,7 +8,6 @@ import { Bot, User, Headphones, Star, Heart, Brain, Rocket, Shield, Lightbulb, M
 import FileUploader from '@/components/FileUploader';
 import WebScraper from '@/components/WebScraper';
 import MongoDBConnector from '@/components/MongoDBConnector';
-import ChatInterface from '@/components/ChatInterface';
 
 export default function NewChatbotPage() {
   const router = useRouter();
@@ -138,7 +137,8 @@ export default function NewChatbotPage() {
       }
 
       setCreatedChatbot(data.chatbot);
-      setStep(5); // Move to test & deploy step
+      // Redirect directly to chatbot dashboard
+      router.push(`/dashboard/${data.chatbot._id}`);
     } catch (err) {
       console.error('Error creating chatbot:', err);
       setError(err.message);
@@ -150,14 +150,6 @@ export default function NewChatbotPage() {
   const handleUploadComplete = (document) => {
     console.log('Document uploaded:', document);
     // You can show a success message or update state here
-  };
-
-  const handleSkipUpload = () => {
-    router.push('/dashboard');
-  };
-
-  const handleFinish = () => {
-    router.push(`/dashboard/${createdChatbot._id}`);
   };
 
   const handleTemplateChange = (templateKey) => {
@@ -240,7 +232,7 @@ export default function NewChatbotPage() {
           {/* Progress Steps */}
           <div className="mb-8">
             <div className="flex items-center justify-center space-x-2">
-              {[1, 2, 3, 4, 5].map((stepNumber) => (
+              {[1, 2, 3, 4].map((stepNumber) => (
                 <div key={stepNumber} className="flex items-center">
                   <div
                     className={`w-10 h-10 rounded-full flex items-center justify-center font-medium text-sm ${
@@ -251,7 +243,7 @@ export default function NewChatbotPage() {
                   >
                     {stepNumber}
                   </div>
-                  {stepNumber < 5 && (
+                  {stepNumber < 4 && (
                     <div
                       className={`w-12 h-1 mx-1 ${
                         step > stepNumber ? 'bg-primary' : 'bg-muted'
@@ -264,12 +256,11 @@ export default function NewChatbotPage() {
             <div className="text-center mt-4">
               <h1 className="text-3xl font-bold mb-2">Create New Chatbot</h1>
               <p className="text-muted-foreground">
-                Step {step} of 5: {
+                Step {step} of 4: {
                   step === 1 ? 'Basic Information' :
                   step === 2 ? 'System Instructions' :
                   step === 3 ? 'Document Upload' :
-                  step === 4 ? 'Configuration' :
-                  'Test & Deploy'
+                  'Configuration'
                 }
               </p>
             </div>
@@ -582,69 +573,6 @@ export default function NewChatbotPage() {
               </div>
             )}
 
-            {step === 5 && createdChatbot && (
-              <div>
-                <h2 className="text-2xl font-semibold mb-6">Test & Deploy Your Chatbot</h2>
-                <div className="space-y-6">
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                    <p className="text-sm font-medium text-green-800 mb-1">
-                      ✓ Chatbot &quot;{createdChatbot.name}&quot; created successfully!
-                    </p>
-                    <p className="text-xs text-green-600">
-                      Test your chatbot below with some sample questions. You can add documents later from your dashboard.
-                    </p>
-                  </div>
-
-                  {/* Sample Questions */}
-                  <div className="border border-border rounded-lg p-4 bg-muted/30">
-                    <h3 className="text-sm font-semibold mb-3">Try These Sample Questions:</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {[
-                        "What can you help me with?",
-                        "Tell me about your capabilities",
-                        "How do you work?",
-                        "What kind of questions can I ask?"
-                      ].map((question, index) => (
-                        <button
-                          key={index}
-                          onClick={() => {
-                            // This will be handled by the ChatInterface if we pass it as a prop
-                            // For now, just show the question
-                          }}
-                          className="text-left px-3 py-2 rounded-lg bg-background border border-border hover:bg-muted/50 transition-colors text-sm"
-                        >
-                          {question}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Chat Interface */}
-                  <div className="border border-border rounded-lg overflow-hidden">
-                    <div className="bg-muted/50 px-4 py-2 border-b border-border">
-                      <h3 className="text-sm font-semibold">Test Chat</h3>
-                    </div>
-                    <div className="h-96">
-                      <ChatInterface
-                        chatbotId={createdChatbot._id}
-                        chatbotName={createdChatbot.name}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Next Steps */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <h3 className="text-sm font-semibold text-blue-900 mb-2">Next Steps:</h3>
-                    <ul className="text-xs text-blue-800 space-y-1 ml-4 list-disc">
-                      <li>Upload documents to enhance your chatbot&apos;s knowledge</li>
-                      <li>Configure additional settings from the dashboard</li>
-                      <li>Get the embed code to add your chatbot to your website</li>
-                      <li>Monitor conversations and improve responses</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Navigation Buttons */}
             {error && step < 4 && (
@@ -654,57 +582,38 @@ export default function NewChatbotPage() {
             )}
 
             <div className="flex justify-between mt-8 pt-6 border-t border-border">
-              {step === 5 ? (
-                <>
-                  <Link
-                    href={`/dashboard/${createdChatbot._id}`}
-                    className="btn-secondary"
-                  >
-                    Add Documents
-                  </Link>
-                  <button
-                    onClick={handleFinish}
-                    className="btn-primary"
-                  >
-                    Complete Setup
-                  </button>
-                </>
+              <button
+                onClick={handlePrevious}
+                disabled={step === 1}
+                className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              {step < 4 ? (
+                <button
+                  onClick={handleNext}
+                  disabled={
+                    (step === 1 && (!chatbotData.name || !chatbotData.description))
+                  }
+                  className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
               ) : (
-                <>
-                  <button
-                    onClick={handlePrevious}
-                    disabled={step === 1}
-                    className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
-                  {step < 4 ? (
-                    <button
-                      onClick={handleNext}
-                      disabled={
-                        (step === 1 && (!chatbotData.name || !chatbotData.description))
-                      }
-                      className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Next
-                    </button>
+                <button
+                  onClick={handleCreate}
+                  disabled={loading}
+                  className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      Creating...
+                    </span>
                   ) : (
-                    <button
-                      onClick={handleCreate}
-                      disabled={loading}
-                      className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {loading ? (
-                        <span className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                          Creating...
-                        </span>
-                      ) : (
-                        'Create Chatbot & Continue'
-                      )}
-                    </button>
+                    'Create Chatbot'
                   )}
-                </>
+                </button>
               )}
             </div>
           </div>
