@@ -507,7 +507,7 @@ export default function MongoDBConnector({ chatbotId, onImportComplete, onImport
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
         <p className="text-xs text-blue-700">
           <strong>How it works:</strong> Connect to your external MongoDB database, select a collection,
-          and import documents. Each document will be converted to text and chunked for your chatbot's knowledge base.
+          and import documents. Each document will be converted to text and chunked for your chatbot&apos;s knowledge base.
           Your connection string is never stored.
         </p>
       </div>

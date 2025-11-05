@@ -1,4 +1,4 @@
-import { getDatabase } from '@/lib/mongodb';
+import clientPromise from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import crypto from 'crypto';
 
@@ -8,7 +8,8 @@ import crypto from 'crypto';
  */
 
 async function getCollection() {
-  const db = await getDatabase();
+  const client = await clientPromise;
+  const db = client.db('buildai');
   return db.collection('apiKeys');
 }
 

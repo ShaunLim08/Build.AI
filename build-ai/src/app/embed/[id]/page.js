@@ -57,7 +57,7 @@ export default function EmbedPage({ params }) {
         watermark: watermark !== 'false',
       });
     }
-  }, []);
+  }, [params]);
 
   const fetchChatbot = async (id) => {
     try {

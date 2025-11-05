@@ -33,7 +33,7 @@ export default function ChatbotDetailPage({ params }) {
       setChatbotId(resolvedParams.id);
       fetchChatbotData(resolvedParams.id);
     });
-  }, []);
+  }, [params]);
 
   const fetchChatbotData = async (id) => {
     try {
@@ -613,7 +613,7 @@ export default function ChatbotDetailPage({ params }) {
                           <option value="detailed">Detailed - Comprehensive explanations</option>
                         </select>
                         <p className="text-xs text-muted-foreground mt-2">
-                          Determines how verbose the chatbot's responses should be.
+                          Determines how verbose the chatbot&apos;s responses should be.
                         </p>
                       </div>
                     </div>

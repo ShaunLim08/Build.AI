@@ -175,7 +175,7 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
                 <span>{formatTimestamp(message.timestamp)}</span>
                 {message.role === 'assistant' && message.metadata && (
                   <span>
-                    {message.metadata.retrieval.chunksUsed} chunks "{' '}
+                    {message.metadata.retrieval.chunksUsed} chunks &quot;{' '}
                     {message.metadata.retrieval.metrics.confidence} confidence
                   </span>
                 )}
@@ -273,7 +273,7 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
         </div>
 
         <div className="mt-2 text-xs text-gray-500">
-          Powered by RAG (Retrieval-Augmented Generation) " Gemini 1.5 Flash
+          Powered by RAG (Retrieval-Augmented Generation) &quot; Gemini 1.5 Flash
         </div>
       </div>
     </div>

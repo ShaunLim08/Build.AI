@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MessageSquare, Clock, User, Bot, ChevronDown, ChevronRight, Trash2 } from 'lucide-react';
 
 export default function ConversationHistory({ chatbotId }) {
@@ -10,11 +10,7 @@ export default function ConversationHistory({ chatbotId }) {
   const [expandedConversation, setExpandedConversation] = useState(null);
   const [selectedConversation, setSelectedConversation] = useState(null);
 
-  useEffect(() => {
-    fetchConversations();
-  }, [chatbotId]);
-
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/chatbots/${chatbotId}/conversations`);
@@ -31,7 +27,11 @@ export default function ConversationHistory({ chatbotId }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [chatbotId]);
+
+  useEffect(() => {
+    fetchConversations();
+  }, [fetchConversations]);
 
   const handleDeleteConversation = async (conversationId, e) => {
     e.stopPropagation();

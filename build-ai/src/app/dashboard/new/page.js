@@ -386,7 +386,7 @@ export default function NewChatbotPage() {
                       required
                     />
                     <p className="text-xs text-muted-foreground mt-2">
-                      Provide a clear description of your chatbot's purpose and capabilities
+                      Provide a clear description of your chatbot&apos;s purpose and capabilities
                     </p>
                   </div>
                 </div>
@@ -412,7 +412,7 @@ export default function NewChatbotPage() {
                       ))}
                     </select>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Select a pre-built template or choose "Custom" to write your own
+                      Select a pre-built template or choose &quot;Custom&quot; to write your own
                     </p>
                   </div>
 
@@ -467,11 +467,11 @@ export default function NewChatbotPage() {
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <h3 className="text-sm font-semibold text-blue-900 mb-2">Tips for Writing Effective Instructions:</h3>
                     <ul className="text-xs text-blue-800 space-y-1 ml-4 list-disc">
-                      <li>Be specific about the chatbot's role and purpose</li>
+                      <li>Be specific about the chatbot&apos;s role and purpose</li>
                       <li>Define the tone and style of responses (formal, casual, technical, etc.)</li>
                       <li>Mention how to handle unknown questions or edge cases</li>
                       <li>Include any specific guidelines or constraints</li>
-                      <li>Reference the knowledge source (e.g., "based on provided documents")</li>
+                      <li>Reference the knowledge source (e.g., &quot;based on provided documents&quot;)</li>
                     </ul>
                   </div>
                 </div>
@@ -588,7 +588,7 @@ export default function NewChatbotPage() {
                 <div className="space-y-6">
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                     <p className="text-sm font-medium text-green-800 mb-1">
-                      ✓ Chatbot "{createdChatbot.name}" created successfully!
+                      ✓ Chatbot &quot;{createdChatbot.name}&quot; created successfully!
                     </p>
                     <p className="text-xs text-green-600">
                       Test your chatbot below with some sample questions. You can add documents later from your dashboard.
@@ -636,7 +636,7 @@ export default function NewChatbotPage() {
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <h3 className="text-sm font-semibold text-blue-900 mb-2">Next Steps:</h3>
                     <ul className="text-xs text-blue-800 space-y-1 ml-4 list-disc">
-                      <li>Upload documents to enhance your chatbot's knowledge</li>
+                      <li>Upload documents to enhance your chatbot&apos;s knowledge</li>
                       <li>Configure additional settings from the dashboard</li>
                       <li>Get the embed code to add your chatbot to your website</li>
                       <li>Monitor conversations and improve responses</li>

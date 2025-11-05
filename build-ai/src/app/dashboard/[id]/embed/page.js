@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Copy, Eye, EyeOff, Trash2, Key } from 'lucide-react';
@@ -33,21 +33,9 @@ export default function EmbedPage({ params }) {
     });
   }, [params]);
 
-  // Fetch API keys on mount
-  useEffect(() => {
-    if (chatbotId) {
-      fetchApiKeys();
-    }
-  }, [chatbotId]);
-
-  if (!chatbotId) {
-    return <div>Loading...</div>;
-  }
-
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
   // Fetch API keys
-  const fetchApiKeys = async () => {
+  const fetchApiKeys = useCallback(async () => {
+    if (!chatbotId) return;
     try {
       setLoadingKeys(true);
       const response = await fetch(`/api/chatbots/${chatbotId}/api-keys`);
@@ -60,7 +48,18 @@ export default function EmbedPage({ params }) {
     } finally {
       setLoadingKeys(false);
     }
-  };
+  }, [chatbotId]);
+
+  // Fetch API keys on mount
+  useEffect(() => {
+    fetchApiKeys();
+  }, [fetchApiKeys]);
+
+  if (!chatbotId) {
+    return <div>Loading...</div>;
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
   // Generate new API key
   const handleGenerateApiKey = async () => {
@@ -339,7 +338,7 @@ console.log(data.metadata); // Retrieval metadata, sources, quality scores`;
                 <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <div>
                     <p className="text-sm font-medium">Show Watermark</p>
-                    <p className="text-xs text-muted-foreground">Display "Powered by Build.AI"</p>
+                    <p className="text-xs text-muted-foreground">Display &quot;Powered by Build.AI&quot;</p>
                   </div>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
@@ -488,7 +487,7 @@ console.log(data.metadata); // Retrieval metadata, sources, quality scores`;
               <div className="text-center py-8 text-muted-foreground">
                 <Key className="w-12 h-12 mx-auto mb-3 opacity-30" />
                 <p>No API keys generated yet.</p>
-                <p className="text-sm mt-1">Click "Generate API Key" to create one.</p>
+                <p className="text-sm mt-1">Click &quot;Generate API Key&quot; to create one.</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -542,7 +541,7 @@ console.log(data.metadata); // Retrieval metadata, sources, quality scores`;
               <div className="card p-6 max-w-lg w-full mx-4" onClick={(e) => e.stopPropagation()}>
                 <h3 className="text-xl font-semibold mb-3">API Key Generated</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Copy this API key now. For security reasons, you won't be able to see it again.
+                  Copy this API key now. For security reasons, you won&apos;t be able to see it again.
                 </p>
 
                 <div className="bg-muted p-4 rounded-lg mb-4">

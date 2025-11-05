@@ -132,7 +132,7 @@ export default function WebScraper({ chatbotId, onScrapeComplete, onScrapeError 
                 className="input"
               />
               <p className="text-xs text-muted-foreground mt-2">
-                Enter the URL of a webpage to scrape and add to your chatbot's knowledge base
+                Enter the URL of a webpage to scrape and add to your chatbot&apos;s knowledge base
               </p>
             </div>
           ) : (
@@ -257,8 +257,8 @@ export default function WebScraper({ chatbotId, onScrapeComplete, onScrapeError 
       {/* Info Box */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
         <p className="text-xs text-blue-700">
-          <strong>How it works:</strong> Enter a URL and we'll extract the main content (removing navigation, ads, etc.),
-          then chunk it for your chatbot's knowledge base. Works best with article pages and documentation sites.
+          <strong>How it works:</strong> Enter a URL and we&apos;ll extract the main content (removing navigation, ads, etc.),
+          then chunk it for your chatbot&apos;s knowledge base. Works best with article pages and documentation sites.
         </p>
       </div>
     </div>
