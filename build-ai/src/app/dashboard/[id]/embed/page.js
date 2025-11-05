@@ -200,6 +200,9 @@ console.log(data.metadata); // Retrieval metadata, sources, quality scores`;
   - watermark: Show "Powered by Build.AI" (true/false)
 -->`;
 
+  // Direct embed URL for platforms like Notion
+  const embedUrl = `${baseUrl}/embed/${chatbotId}`;
+
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
@@ -243,6 +246,50 @@ console.log(data.metadata); // Retrieval metadata, sources, quality scores`;
             <p className="text-muted-foreground">
               Choose how you want to integrate your chatbot into your website or application.
             </p>
+          </div>
+
+          {/* Quick Embed URL */}
+          <div className="card p-6 mb-8 bg-gradient-to-r from-primary/5 to-primary/10 border-primary/20">
+            <h2 className="text-xl font-semibold mb-2 flex items-center gap-2">
+              <span className="text-2xl">🚀</span>
+              Quick Embed URL
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              Copy this URL to embed your chatbot in Notion, Confluence, or any platform that supports embeds.
+            </p>
+
+            <div className="flex items-center gap-2">
+              <div className="flex-1 font-mono text-sm bg-background p-3 rounded border border-border">
+                {embedUrl}
+              </div>
+              <button
+                onClick={() => copyToClipboard(embedUrl)}
+                className="btn-primary px-4 py-3 flex items-center gap-2 whitespace-nowrap"
+              >
+                {copied ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <Copy size={16} />
+                    Copy URL
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="mt-4 p-3 bg-background rounded-lg border border-border">
+              <p className="text-xs font-semibold mb-2">How to use in Notion:</p>
+              <ol className="text-xs text-muted-foreground space-y-1 ml-4 list-decimal">
+                <li>Type <code className="bg-muted px-1 py-0.5 rounded">/embed</code> in your Notion page</li>
+                <li>Paste the URL above</li>
+                <li>Press Enter - your chatbot will appear!</li>
+              </ol>
+            </div>
           </div>
 
           {/* Chatbot Info */}
@@ -429,19 +476,67 @@ console.log(data.metadata); // Retrieval metadata, sources, quality scores`;
                 <div>
                   <h3 className="text-lg font-semibold mb-3">JavaScript Widget</h3>
                   <p className="text-muted-foreground mb-4">
-                    Add this code to your website to display a floating chatbot widget.
-                    The widget will appear in the bottom-right corner of your page.
+                    Add a floating chat widget to your website. The widget appears as a button that opens a chat interface when clicked.
                   </p>
+
+                  <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <h4 className="font-semibold text-sm mb-2 text-blue-900 dark:text-blue-100">📋 How to Use:</h4>
+                    <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-2 ml-4 list-decimal">
+                      <li>Copy the code snippet below</li>
+                      <li>Paste it before the closing <code className="bg-blue-100 dark:bg-blue-900 px-1 py-0.5 rounded">&lt;/body&gt;</code> tag in your HTML</li>
+                      <li>The widget will automatically appear on your site</li>
+                      <li>Customize colors and position using the options above</li>
+                    </ol>
+                  </div>
+
+                  <div className="mb-4 p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
+                    <h4 className="font-semibold text-sm mb-2 text-green-900 dark:text-green-100">✨ Features:</h4>
+                    <ul className="text-sm text-green-800 dark:text-green-200 space-y-1 ml-4 list-disc">
+                      <li>Floating button that opens chat interface</li>
+                      <li>Automatically matches your color scheme</li>
+                      <li>Mobile responsive design</li>
+                      <li>Remembers conversation history</li>
+                    </ul>
+                  </div>
                 </div>
               )}
 
               {activeTab === 'api' && (
                 <div>
-                  <h3 className="text-lg font-semibold mb-3">REST API</h3>
+                  <h3 className="text-lg font-semibold mb-3">REST API Integration</h3>
                   <p className="text-muted-foreground mb-4">
-                    Integrate the chatbot directly into your application using our REST API.
-                    Perfect for custom implementations and mobile apps.
+                    Integrate the chatbot directly into your application for complete control over the UI and behavior.
                   </p>
+
+                  <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <h4 className="font-semibold text-sm mb-2 text-blue-900 dark:text-blue-100">📋 How to Use:</h4>
+                    <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-2 ml-4 list-decimal">
+                      <li>Copy the API example code below</li>
+                      <li>Replace the message and sessionId with your own values</li>
+                      <li>Send POST requests to the chat endpoint</li>
+                      <li>Process the JSON response in your application</li>
+                    </ol>
+                  </div>
+
+                  <div className="mb-4 p-4 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-lg">
+                    <h4 className="font-semibold text-sm mb-2 text-purple-900 dark:text-purple-100">🔑 Response Format:</h4>
+                    <ul className="text-sm text-purple-800 dark:text-purple-200 space-y-1 ml-4 list-disc">
+                      <li><code className="bg-purple-100 dark:bg-purple-900 px-1 py-0.5 rounded">response</code> - The AI-generated reply text</li>
+                      <li><code className="bg-purple-100 dark:bg-purple-900 px-1 py-0.5 rounded">metadata.sources</code> - Source documents used</li>
+                      <li><code className="bg-purple-100 dark:bg-purple-900 px-1 py-0.5 rounded">metadata.confidence</code> - Answer confidence score</li>
+                      <li><code className="bg-purple-100 dark:bg-purple-900 px-1 py-0.5 rounded">conversationId</code> - ID for conversation history</li>
+                    </ul>
+                  </div>
+
+                  <div className="mb-4 p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
+                    <h4 className="font-semibold text-sm mb-2 text-green-900 dark:text-green-100">✨ Use Cases:</h4>
+                    <ul className="text-sm text-green-800 dark:text-green-200 space-y-1 ml-4 list-disc">
+                      <li>Mobile applications (iOS, Android, React Native)</li>
+                      <li>Custom chat interfaces with your own design</li>
+                      <li>Backend integrations and automation</li>
+                      <li>Chatbots in Slack, Discord, or other platforms</li>
+                    </ul>
+                  </div>
                 </div>
               )}
 
@@ -449,9 +544,38 @@ console.log(data.metadata); // Retrieval metadata, sources, quality scores`;
                 <div>
                   <h3 className="text-lg font-semibold mb-3">iFrame Embed</h3>
                   <p className="text-muted-foreground mb-4">
-                    Embed the chatbot as an iframe in your website. Simple integration
-                    with full control over size and positioning.
+                    Embed the full chatbot interface directly into your webpage using an iframe. Perfect for dedicated chat pages.
                   </p>
+
+                  <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <h4 className="font-semibold text-sm mb-2 text-blue-900 dark:text-blue-100">📋 How to Use:</h4>
+                    <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-2 ml-4 list-decimal">
+                      <li>Copy the iframe code below</li>
+                      <li>Paste it anywhere in your HTML where you want the chat to appear</li>
+                      <li>Adjust <code className="bg-blue-100 dark:bg-blue-900 px-1 py-0.5 rounded">width</code> and <code className="bg-blue-100 dark:bg-blue-900 px-1 py-0.5 rounded">height</code> to fit your layout</li>
+                      <li>Customize colors using URL parameters (see below)</li>
+                    </ol>
+                  </div>
+
+                  <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+                    <h4 className="font-semibold text-sm mb-2 text-amber-900 dark:text-amber-100">🎨 Customization Parameters:</h4>
+                    <ul className="text-sm text-amber-800 dark:text-amber-200 space-y-1 ml-4 list-disc">
+                      <li><code className="bg-amber-100 dark:bg-amber-900 px-1 py-0.5 rounded">bg</code> - Background color (hex without #)</li>
+                      <li><code className="bg-amber-100 dark:bg-amber-900 px-1 py-0.5 rounded">text</code> - Text color (hex without #)</li>
+                      <li><code className="bg-amber-100 dark:bg-amber-900 px-1 py-0.5 rounded">button</code> - Primary button color (hex without #)</li>
+                      <li><code className="bg-amber-100 dark:bg-amber-900 px-1 py-0.5 rounded">watermark</code> - Show watermark (true/false)</li>
+                    </ul>
+                  </div>
+
+                  <div className="mb-4 p-4 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
+                    <h4 className="font-semibold text-sm mb-2 text-green-900 dark:text-green-100">✨ Best For:</h4>
+                    <ul className="text-sm text-green-800 dark:text-green-200 space-y-1 ml-4 list-disc">
+                      <li>Dedicated support or chat pages</li>
+                      <li>Embedding in Notion, Confluence, or WordPress</li>
+                      <li>Adding to admin dashboards</li>
+                      <li>Quick integration without JavaScript</li>
+                    </ul>
+                  </div>
                 </div>
               )}
 
@@ -466,17 +590,6 @@ console.log(data.metadata); // Retrieval metadata, sources, quality scores`;
                 >
                   {copied ? 'Copied!' : 'Copy'}
                 </button>
-              </div>
-
-              {/* Additional Options */}
-              <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-                <h4 className="font-medium mb-2">Customization Options</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Customize colors and themes to match your brand</li>
-                  <li>• Set custom welcome messages and bot personality</li>
-                  <li>• Configure widget position and behavior</li>
-                  <li>• Enable/disable features like file uploads and voice input</li>
-                </ul>
               </div>
             </div>
           </div>
