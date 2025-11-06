@@ -58,7 +58,14 @@ export async function POST(request, { params }) {
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       return NextResponse.json(
         { success: false, error: 'Message is required' },
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          }
+        }
       );
     }
 
@@ -77,7 +84,14 @@ export async function POST(request, { params }) {
     if (!chatbot) {
       return NextResponse.json(
         { success: false, error: 'Chatbot not found' },
-        { status: 404 }
+        {
+          status: 404,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          }
+        }
       );
     }
 
@@ -133,7 +147,14 @@ export async function POST(request, { params }) {
         success: false,
         error: 'No knowledge base found',
         message: 'This chatbot doesn\'t have any documents uploaded yet. Please upload documents first.',
-      }, { status: 400 });
+      }, {
+        status: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
+      });
     }
 
     // Step 5: Calculate relevance metrics
@@ -294,7 +315,7 @@ export async function POST(request, { params }) {
         }
       }
 
-      // Return complete response
+      // Return complete response with CORS headers
       return NextResponse.json({
         success: true,
         response: responseText,
@@ -316,6 +337,12 @@ export async function POST(request, { params }) {
           processingTime: totalTime,
           timestamp: new Date().toISOString(),
         },
+      }, {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
       });
     }
 
@@ -331,7 +358,14 @@ export async function POST(request, { params }) {
           error: 'Gemini API key not configured',
           details: 'Please set the GEMINI_API_KEY environment variable',
         },
-        { status: 500 }
+        {
+          status: 500,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          }
+        }
       );
     }
 
@@ -341,7 +375,29 @@ export async function POST(request, { params }) {
         error: error.message || 'Failed to process chat request',
         details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        }
+      }
     );
   }
+}
+
+/**
+ * OPTIONS /api/chatbots/[chatbotId]/chat
+ * Handle CORS preflight requests
+ */
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
 }
