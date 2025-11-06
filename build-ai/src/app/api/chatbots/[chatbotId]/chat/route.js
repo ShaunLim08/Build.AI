@@ -14,6 +14,10 @@ import {
 import { generateChatCompletion, streamChatCompletion } from '@/lib/gemini';
 import { rateLimitWidget } from '@/lib/rateLimit';
 
+// Configure runtime for longer timeout (60s for Pro, 10s for Hobby)
+export const maxDuration = 60;
+export const runtime = 'nodejs';
+
 /**
  * POST /api/chatbots/[chatbotId]/chat
  * Complete RAG pipeline: retrieve context and generate response
@@ -38,7 +42,12 @@ export async function POST(request, { params }) {
         },
         {
           status: 429,
-          headers: rateLimitResult.headers,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            ...rateLimitResult.headers,
+          },
         }
       );
     }

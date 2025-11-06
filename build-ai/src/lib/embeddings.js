@@ -1,52 +1,61 @@
-import { pipeline, env } from '@xenova/transformers';
-
-// Configure to use local models (optional - remove if you want to download models)
-// env.localModelPath = './models/';
-// env.allowRemoteModels = true;
-
-let embeddingPipeline = null;
-
 /**
- * Initialize the embedding model
- * Uses thenlper/gte-large - a high-quality embedding model
+ * Embeddings using Google's Gemini API
+ * Fast, serverless-friendly, and free!
  */
-async function initEmbeddingModel() {
-  if (!embeddingPipeline) {
-    console.log('🔄 Loading embedding model (thenlper/gte-large)...');
-    console.log('⚠️  First run will download the model (~300MB)');
 
-    embeddingPipeline = await pipeline(
-      'feature-extraction',
-      'Xenova/gte-large'
-    );
+const GEMINI_EMBEDDING_API = 'https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent';
 
-    console.log('✅ Embedding model loaded successfully');
+function getApiKey() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY environment variable is not set');
   }
-  return embeddingPipeline;
+  return apiKey;
 }
 
 /**
- * Generate embedding for a single text
+ * Generate embedding for a single text using Google's Gemini API
  * @param {string} text - The text to embed
- * @returns {Promise<number[]>} - The embedding vector (1024 dimensions)
+ * @returns {Promise<number[]>} - The embedding vector (768 dimensions)
  */
 export async function generateEmbedding(text) {
   if (!text || typeof text !== 'string') {
     throw new Error('Text must be a non-empty string');
   }
 
-  // Clean and truncate text if needed (model has max token limit)
-  const cleanedText = text.trim().substring(0, 8192); // ~2048 tokens max
+  const apiKey = getApiKey();
+  const cleanedText = text.trim();
 
-  const model = await initEmbeddingModel();
+  try {
+    const response = await fetch(`${GEMINI_EMBEDDING_API}?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'models/text-embedding-004',
+        content: {
+          parts: [{ text: cleanedText }]
+        }
+      }),
+    });
 
-  // Generate embedding
-  const output = await model(cleanedText, { pooling: 'mean', normalize: true });
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Gemini Embedding API error: ${response.status} ${errorText}`);
+    }
 
-  // Convert to regular array
-  const embedding = Array.from(output.data);
+    const data = await response.json();
+    
+    if (!data.embedding || !data.embedding.values) {
+      throw new Error('Invalid response from Gemini Embedding API');
+    }
 
-  return embedding;
+    return data.embedding.values;
+  } catch (error) {
+    console.error('Error generating embedding:', error);
+    throw error;
+  }
 }
 
 /**
@@ -57,19 +66,17 @@ export async function generateEmbedding(text) {
  * @returns {Promise<number[][]>} - Array of embedding vectors
  */
 export async function generateEmbeddingsBatch(texts, options = {}) {
-  const { batchSize = 32, onProgress } = options;
+  const { batchSize = 10, onProgress } = options;
 
   if (!Array.isArray(texts) || texts.length === 0) {
     throw new Error('texts must be a non-empty array');
   }
 
-  const model = await initEmbeddingModel();
   const embeddings = [];
 
-  // Process in batches
+  // Process in batches to avoid rate limits
   for (let i = 0; i < texts.length; i += batchSize) {
     const batch = texts.slice(i, i + batchSize);
-    const batchStart = i;
     const batchEnd = Math.min(i + batchSize, texts.length);
 
     if (onProgress) {
@@ -81,22 +88,19 @@ export async function generateEmbeddingsBatch(texts, options = {}) {
       });
     }
 
-    console.log(`📊 Processing batch ${Math.floor(i / batchSize) + 1}: ${batchStart + 1}-${batchEnd} of ${texts.length}`);
+    console.log(`📊 Processing batch ${Math.floor(i / batchSize) + 1}: ${i + 1}-${batchEnd} of ${texts.length}`);
 
-    // Clean texts
-    const cleanedBatch = batch.map(text =>
-      (text || '').toString().trim().substring(0, 8192)
-    );
-
-    // Generate embeddings for batch
+    // Generate embeddings for batch in parallel
     const batchEmbeddings = await Promise.all(
-      cleanedBatch.map(async (text) => {
-        const output = await model(text, { pooling: 'mean', normalize: true });
-        return Array.from(output.data);
-      })
+      batch.map(text => generateEmbedding(text))
     );
 
     embeddings.push(...batchEmbeddings);
+
+    // Small delay to avoid rate limiting
+    if (i + batchSize < texts.length) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
   }
 
   return embeddings;
@@ -161,11 +165,11 @@ export function findSimilar(queryEmbedding, documents, topK = 5) {
  */
 export function getModelInfo() {
   return {
-    model: 'Xenova/gte-large (thenlper/gte-large)',
-    provider: 'Hugging Face',
-    dimensions: 1024,
-    maxTokens: 512,
-    description: 'General Text Embeddings (GTE) large model - high quality embeddings',
-    cost: 'Free (open source)',
+    model: 'text-embedding-004',
+    provider: 'Google Gemini',
+    dimensions: 768,
+    maxTokens: 2048,
+    description: 'Google\'s text embedding model - fast and accurate',
+    cost: 'Free tier available',
   };
 }
