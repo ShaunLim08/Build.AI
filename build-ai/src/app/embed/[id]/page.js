@@ -2,7 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, Send, Minimize2, Maximize2, Volume2, VolumeX } from 'lucide-react';
+import {
+  Bot,
+  Send,
+  Minimize2,
+  Maximize2,
+  Volume2,
+  VolumeX,
+} from 'lucide-react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -29,7 +36,7 @@ export default function EmbedPage({ params }) {
 
   // Parse URL parameters on mount
   useEffect(() => {
-    params.then(resolvedParams => {
+    params.then((resolvedParams) => {
       setChatbotId(resolvedParams.id);
       fetchChatbot(resolvedParams.id);
     });
@@ -43,7 +50,9 @@ export default function EmbedPage({ params }) {
       if (urlSessionId) {
         setSessionId(urlSessionId);
       } else {
-        const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        const newSessionId = `session_${Date.now()}_${Math.random()
+          .toString(36)
+          .substr(2, 9)}`;
         setSessionId(newSessionId);
       }
 
@@ -74,11 +83,15 @@ export default function EmbedPage({ params }) {
       setChatbot(data.chatbot);
 
       // Add welcome message
-      setMessages([{
-        role: 'assistant',
-        content: `Hello! I'm ${data.chatbot.name}. ${data.chatbot.description || 'How can I help you today?'}`,
-        timestamp: new Date().toISOString(),
-      }]);
+      setMessages([
+        {
+          role: 'assistant',
+          content: `Hello! I'm ${data.chatbot.name}. ${
+            data.chatbot.description || 'How can I help you today?'
+          }`,
+          timestamp: new Date().toISOString(),
+        },
+      ]);
     } catch (err) {
       console.error('Error fetching chatbot:', err);
       setError(err.message);
@@ -110,12 +123,12 @@ export default function EmbedPage({ params }) {
       timestamp: new Date().toISOString(),
     };
 
-    setMessages(prev => [...prev, newUserMessage]);
+    setMessages((prev) => [...prev, newUserMessage]);
     setIsTyping(true);
 
     try {
       // Build conversation history
-      const history = messages.slice(-10).map(msg => ({
+      const history = messages.slice(-10).map((msg) => ({
         role: msg.role,
         content: msg.content,
       }));
@@ -160,16 +173,18 @@ export default function EmbedPage({ params }) {
         metadata: data.metadata,
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
 
       // Notify parent window about new message (for unread counter)
       if (window.parent !== window) {
-        window.parent.postMessage({
-          type: 'buildai:newMessage',
-          message: assistantMessage
-        }, '*');
+        window.parent.postMessage(
+          {
+            type: 'buildai:newMessage',
+            message: assistantMessage,
+          },
+          '*'
+        );
       }
-
     } catch (error) {
       console.error('Error sending message:', error);
 
@@ -178,11 +193,14 @@ export default function EmbedPage({ params }) {
 
       // Provide helpful context for common errors
       if (error.message.includes('No knowledge base found')) {
-        errorContent = "This chatbot doesn't have any documents uploaded yet. Please contact the owner to add documents first.";
+        errorContent =
+          "This chatbot doesn't have any documents uploaded yet. Please contact the owner to add documents first.";
       } else if (error.message.includes('Invalid response')) {
-        errorContent = "Sorry, there was a problem processing your request. Please try again.";
+        errorContent =
+          'Sorry, there was a problem processing your request. Please try again.';
       } else if (error.message.includes('Failed to get response')) {
-        errorContent = "Sorry, I couldn't process your message. Please try again in a moment.";
+        errorContent =
+          "Sorry, I couldn't process your message. Please try again in a moment.";
       }
 
       const errorMessage = {
@@ -192,7 +210,7 @@ export default function EmbedPage({ params }) {
         error: true,
       };
 
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsTyping(false);
     }
@@ -201,7 +219,7 @@ export default function EmbedPage({ params }) {
   const formatTime = (timestamp) => {
     return new Date(timestamp).toLocaleTimeString([], {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     });
   };
 
@@ -214,7 +232,9 @@ export default function EmbedPage({ params }) {
     g = Math.max(0, Math.min(255, g + amount));
     b = Math.max(0, Math.min(255, b + amount));
 
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    return `#${r.toString(16).padStart(2, '0')}${g
+      .toString(16)
+      .padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
   };
 
   if (loading) {
@@ -227,7 +247,7 @@ export default function EmbedPage({ params }) {
           className="w-12 h-12 border-4 rounded-full"
           style={{
             borderColor: `${styling.button}40`,
-            borderTopColor: styling.button
+            borderTopColor: styling.button,
           }}
           animate={{ rotate: 360 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
@@ -269,8 +289,11 @@ export default function EmbedPage({ params }) {
           className="p-4 flex justify-between items-center cursor-pointer"
           onClick={() => setMinimized(!minimized)}
           style={{
-            background: `linear-gradient(to right, ${styling.bg}, ${adjustColor(styling.bg, -10)})`,
-            borderBottom: `1px solid ${adjustColor(styling.bg, -20)}`
+            background: `linear-gradient(to right, ${styling.bg}, ${adjustColor(
+              styling.bg,
+              -10
+            )})`,
+            borderBottom: `1px solid ${adjustColor(styling.bg, -20)}`,
           }}
         >
           <div className="flex items-center">
@@ -284,7 +307,10 @@ export default function EmbedPage({ params }) {
               <h3 className="font-semibold" style={{ color: styling.text }}>
                 {chatbot.name}
               </h3>
-              <p className="text-xs" style={{ color: adjustColor(styling.text, -40) }}>
+              <p
+                className="text-xs"
+                style={{ color: adjustColor(styling.text, -40) }}
+              >
                 Online
               </p>
             </div>
@@ -296,7 +322,11 @@ export default function EmbedPage({ params }) {
             className="p-2 rounded-full hover:bg-white/10"
             style={{ color: styling.text }}
           >
-            {minimized ? <Maximize2 className="w-5 h-5" /> : <Minimize2 className="w-5 h-5" />}
+            {minimized ? (
+              <Maximize2 className="w-5 h-5" />
+            ) : (
+              <Minimize2 className="w-5 h-5" />
+            )}
           </motion.button>
         </div>
 
@@ -321,7 +351,11 @@ export default function EmbedPage({ params }) {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3 }}
-                      className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      className={`flex ${
+                        message.role === 'user'
+                          ? 'justify-end'
+                          : 'justify-start'
+                      }`}
                     >
                       <div
                         className={`max-w-[80%] px-4 py-3 rounded-lg ${
@@ -330,17 +364,19 @@ export default function EmbedPage({ params }) {
                             : 'rounded-bl-none'
                         }`}
                         style={{
-                          backgroundColor: message.role === 'user'
-                            ? styling.button
-                            : message.error
-                            ? '#ef444433'
-                            : adjustColor(styling.bg, 10),
+                          backgroundColor:
+                            message.role === 'user'
+                              ? styling.button
+                              : message.error
+                              ? '#ef444433'
+                              : adjustColor(styling.bg, 10),
                           color: styling.text,
-                          border: message.role === 'assistant'
-                            ? message.error
-                              ? `1px solid #ef4444`
-                              : `1px solid ${adjustColor(styling.bg, -20)}`
-                            : 'none'
+                          border:
+                            message.role === 'assistant'
+                              ? message.error
+                                ? `1px solid #ef4444`
+                                : `1px solid ${adjustColor(styling.bg, -20)}`
+                              : 'none',
                         }}
                       >
                         <div className="flex items-center justify-between mb-1">
@@ -358,12 +394,30 @@ export default function EmbedPage({ params }) {
                             remarkPlugins={[remarkGfm]}
                             components={{
                               // Custom styling for markdown elements
-                              p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                              ul: ({ children }) => <ul className="mb-2 ml-4 list-disc">{children}</ul>,
-                              ol: ({ children }) => <ol className="mb-2 ml-4 list-decimal">{children}</ol>,
-                              li: ({ children }) => <li className="mb-1">{children}</li>,
-                              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
-                              em: ({ children }) => <em className="italic">{children}</em>,
+                              p: ({ children }) => (
+                                <p className="mb-2 last:mb-0">{children}</p>
+                              ),
+                              ul: ({ children }) => (
+                                <ul className="mb-2 ml-4 list-disc">
+                                  {children}
+                                </ul>
+                              ),
+                              ol: ({ children }) => (
+                                <ol className="mb-2 ml-4 list-decimal">
+                                  {children}
+                                </ol>
+                              ),
+                              li: ({ children }) => (
+                                <li className="mb-1">{children}</li>
+                              ),
+                              strong: ({ children }) => (
+                                <strong className="font-semibold">
+                                  {children}
+                                </strong>
+                              ),
+                              em: ({ children }) => (
+                                <em className="italic">{children}</em>
+                              ),
                               code: ({ inline, children }) =>
                                 inline ? (
                                   <code className="px-1 py-0.5 rounded text-xs font-mono bg-black/20">
@@ -375,7 +429,12 @@ export default function EmbedPage({ params }) {
                                   </code>
                                 ),
                               a: ({ href, children }) => (
-                                <a href={href} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">
+                                <a
+                                  href={href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="underline hover:opacity-80"
+                                >
                                   {children}
                                 </a>
                               ),
@@ -387,10 +446,19 @@ export default function EmbedPage({ params }) {
 
                         {/* Metadata for assistant messages */}
                         {message.metadata && (
-                          <div className="mt-2 pt-2 text-xs opacity-60" style={{ borderTop: `1px solid ${adjustColor(styling.bg, -10)}` }}>
+                          <div
+                            className="mt-2 pt-2 text-xs opacity-60"
+                            style={{
+                              borderTop: `1px solid ${adjustColor(
+                                styling.bg,
+                                -10
+                              )}`,
+                            }}
+                          >
                             {message.metadata.retrieval?.chunksUsed > 0 && (
                               <span>
-                                {message.metadata.retrieval.chunksUsed} sources • {' '}
+                                {message.metadata.retrieval.chunksUsed} sources
+                                •{' '}
                                 {message.metadata.retrieval.metrics?.confidence}
                               </span>
                             )}
@@ -407,7 +475,7 @@ export default function EmbedPage({ params }) {
                         className="px-4 py-3 rounded-lg rounded-bl-none"
                         style={{
                           backgroundColor: adjustColor(styling.bg, 10),
-                          border: `1px solid ${adjustColor(styling.bg, -20)}`
+                          border: `1px solid ${adjustColor(styling.bg, -20)}`,
                         }}
                       >
                         <div className="flex items-center space-x-1">
@@ -421,7 +489,10 @@ export default function EmbedPage({ params }) {
                                 delay: i * 0.2,
                               }}
                               className="w-2 h-2 rounded-full"
-                              style={{ backgroundColor: styling.text, opacity: 0.4 }}
+                              style={{
+                                backgroundColor: styling.text,
+                                opacity: 0.4,
+                              }}
                             />
                           ))}
                         </div>
@@ -439,7 +510,7 @@ export default function EmbedPage({ params }) {
                 className="p-4"
                 style={{
                   backgroundColor: styling.bg,
-                  borderTop: `1px solid ${adjustColor(styling.bg, -20)}`
+                  borderTop: `1px solid ${adjustColor(styling.bg, -20)}`,
                 }}
               >
                 <div className="flex space-x-2">
@@ -453,7 +524,7 @@ export default function EmbedPage({ params }) {
                       backgroundColor: adjustColor(styling.bg, 5),
                       color: styling.text,
                       border: `1px solid ${adjustColor(styling.bg, -20)}`,
-                      '--tw-ring-color': styling.button
+                      '--tw-ring-color': styling.button,
                     }}
                     disabled={isTyping}
                   />
@@ -476,7 +547,7 @@ export default function EmbedPage({ params }) {
                   className="px-4 py-2 flex justify-center"
                   style={{
                     backgroundColor: styling.bg,
-                    borderTop: `1px solid ${adjustColor(styling.bg, -20)}`
+                    borderTop: `1px solid ${adjustColor(styling.bg, -20)}`,
                   }}
                 >
                   <Link

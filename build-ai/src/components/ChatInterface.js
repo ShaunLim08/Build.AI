@@ -12,7 +12,10 @@ import remarkGfm from 'remark-gfm';
  * Usage:
  * <ChatInterface chatbotId="your-chatbot-id" />
  */
-export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' }) {
+export default function ChatInterface({
+  chatbotId,
+  chatbotName = 'AI Assistant',
+}) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,7 +26,9 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
 
   // Generate sessionId on mount
   useEffect(() => {
-    const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const newSessionId = `session_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
     setSessionId(newSessionId);
   }, []);
 
@@ -49,12 +54,12 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
       timestamp: new Date().toISOString(),
     };
 
-    setMessages(prev => [...prev, newMessage]);
+    setMessages((prev) => [...prev, newMessage]);
     setLoading(true);
 
     try {
       // Build conversation history (last 5 messages)
-      const history = messages.slice(-10).map(msg => ({
+      const history = messages.slice(-10).map((msg) => ({
         role: msg.role,
         content: msg.content,
       }));
@@ -86,8 +91,7 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
         metadata: data.metadata,
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
-
+      setMessages((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error('Error sending message:', error);
       setError(error.message);
@@ -99,7 +103,7 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
         timestamp: new Date().toISOString(),
       };
 
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setLoading(false);
     }
@@ -116,7 +120,9 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
     setMessages([]);
     setError(null);
     // Generate new sessionId for new conversation
-    const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const newSessionId = `session_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
     setSessionId(newSessionId);
   };
 
@@ -153,14 +159,18 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
         {messages.length === 0 && (
           <div className="text-center text-gray-500 py-12">
             <p className="text-lg mb-2">=K Start a conversation!</p>
-            <p className="text-sm">Ask me anything about your knowledge base.</p>
+            <p className="text-sm">
+              Ask me anything about your knowledge base.
+            </p>
           </div>
         )}
 
         {messages.map((message, index) => (
           <div
             key={index}
-            className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            className={`flex ${
+              message.role === 'user' ? 'justify-end' : 'justify-start'
+            }`}
           >
             <div
               className={`max-w-[80%] rounded-lg p-4 ${
@@ -171,22 +181,46 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
                   : 'bg-gray-100 text-gray-900'
               }`}
             >
-              <div className="break-words prose prose-sm max-w-none prose-invert">
+              <div
+                className={`break-words prose prose-sm max-w-none ${
+                  message.role === 'user' ? 'prose-invert' : ''
+                }`}
+              >
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
-                    p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                    ul: ({ children }) => <ul className="mb-2 ml-4 list-disc">{children}</ul>,
-                    ol: ({ children }) => <ol className="mb-2 ml-4 list-decimal">{children}</ol>,
+                    p: ({ children }) => (
+                      <p className="mb-2 last:mb-0">{children}</p>
+                    ),
+                    ul: ({ children }) => (
+                      <ul className="mb-2 ml-4 list-disc">{children}</ul>
+                    ),
+                    ol: ({ children }) => (
+                      <ol className="mb-2 ml-4 list-decimal">{children}</ol>
+                    ),
                     li: ({ children }) => <li className="mb-1">{children}</li>,
-                    strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                    strong: ({ children }) => (
+                      <strong className="font-semibold">{children}</strong>
+                    ),
                     code: ({ inline, children }) =>
                       inline ? (
-                        <code className="px-1 py-0.5 rounded text-xs font-mono bg-black/10">
+                        <code
+                          className={`px-1 py-0.5 rounded text-xs font-mono ${
+                            message.role === 'user'
+                              ? 'bg-white/20'
+                              : 'bg-black/10'
+                          }`}
+                        >
                           {children}
                         </code>
                       ) : (
-                        <code className="block p-2 rounded text-xs font-mono bg-black/10 overflow-x-auto">
+                        <code
+                          className={`block p-2 rounded text-xs font-mono overflow-x-auto ${
+                            message.role === 'user'
+                              ? 'bg-white/20'
+                              : 'bg-black/10'
+                          }`}
+                        >
                           {children}
                         </code>
                       ),
@@ -207,44 +241,58 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
               </div>
 
               {/* Metadata display */}
-              {message.role === 'assistant' && message.metadata && showMetadata && (
-                <div className="mt-4 pt-4 border-t border-gray-300 text-xs space-y-2">
-                  <div>
-                    <strong>Query Optimized:</strong> {message.metadata.optimizedQuery}
-                  </div>
-                  <div>
-                    <strong>Retrieval:</strong> {message.metadata.retrieval.chunksRetrieved}{' '}
-                    retrieved, {message.metadata.retrieval.chunksUsed} used
-                  </div>
-                  <div>
-                    <strong>Quality Score:</strong>{' '}
-                    {(message.metadata.retrieval.metrics.qualityScore * 100).toFixed(1)}%
-                  </div>
-                  <div>
-                    <strong>Confidence:</strong> {message.metadata.retrieval.metrics.confidence}
-                  </div>
-                  {message.metadata.retrieval.sources.length > 0 && (
+              {message.role === 'assistant' &&
+                message.metadata &&
+                showMetadata && (
+                  <div className="mt-4 pt-4 border-t border-gray-300 text-xs space-y-2">
                     <div>
-                      <strong>Sources:</strong> {message.metadata.retrieval.sources.join(', ')}
+                      <strong>Query Optimized:</strong>{' '}
+                      {message.metadata.optimizedQuery}
                     </div>
-                  )}
-                  {message.metadata.citations && message.metadata.citations.length > 0 && (
                     <div>
-                      <strong>Citations:</strong> [{message.metadata.citations.join(', ')}]
+                      <strong>Retrieval:</strong>{' '}
+                      {message.metadata.retrieval.chunksRetrieved} retrieved,{' '}
+                      {message.metadata.retrieval.chunksUsed} used
                     </div>
-                  )}
-                  {message.metadata.generation?.usage && (
                     <div>
-                      <strong>Tokens:</strong> {message.metadata.generation.usage.totalTokens} (
-                      {message.metadata.generation.usage.promptTokens} prompt +{' '}
-                      {message.metadata.generation.usage.completionTokens} completion)
+                      <strong>Quality Score:</strong>{' '}
+                      {(
+                        message.metadata.retrieval.metrics.qualityScore * 100
+                      ).toFixed(1)}
+                      %
                     </div>
-                  )}
-                  <div>
-                    <strong>Processing Time:</strong> {message.metadata.processingTime}ms
+                    <div>
+                      <strong>Confidence:</strong>{' '}
+                      {message.metadata.retrieval.metrics.confidence}
+                    </div>
+                    {message.metadata.retrieval.sources.length > 0 && (
+                      <div>
+                        <strong>Sources:</strong>{' '}
+                        {message.metadata.retrieval.sources.join(', ')}
+                      </div>
+                    )}
+                    {message.metadata.citations &&
+                      message.metadata.citations.length > 0 && (
+                        <div>
+                          <strong>Citations:</strong> [
+                          {message.metadata.citations.join(', ')}]
+                        </div>
+                      )}
+                    {message.metadata.generation?.usage && (
+                      <div>
+                        <strong>Tokens:</strong>{' '}
+                        {message.metadata.generation.usage.totalTokens} (
+                        {message.metadata.generation.usage.promptTokens} prompt
+                        + {message.metadata.generation.usage.completionTokens}{' '}
+                        completion)
+                      </div>
+                    )}
+                    <div>
+                      <strong>Processing Time:</strong>{' '}
+                      {message.metadata.processingTime}ms
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </div>
         ))}
@@ -298,7 +346,8 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
         </div>
 
         <div className="mt-2 text-xs text-gray-500">
-          Powered by RAG (Retrieval-Augmented Generation) &quot; Gemini 1.5 Flash
+          Powered by RAG (Retrieval-Augmented Generation) &quot; Gemini 1.5
+          Flash
         </div>
       </div>
     </div>

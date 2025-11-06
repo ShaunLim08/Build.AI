@@ -1,9 +1,9 @@
 /**
  * Regenerate Embeddings Script
- * 
+ *
  * This script regenerates all embeddings for a chatbot using the new Gemini API.
  * Use this after switching from local embeddings (1024-dim) to Gemini API (768-dim).
- * 
+ *
  * Usage: node scripts/regenerate-embeddings.js <chatbotId>
  */
 
@@ -33,12 +33,13 @@ async function regenerateEmbeddings(chatbotId) {
     client = new MongoClient(MONGODB_URI);
     await client.connect();
     const db = client.db(DB_NAME);
-    
+
     console.log('✅ Connected to MongoDB\n');
 
     // Get all chunks for this chatbot
     console.log('📊 Fetching chunks...');
-    const chunks = await db.collection('chunks')
+    const chunks = await db
+      .collection('chunks')
       .find({ chatbotId: new ObjectId(chatbotId) })
       .toArray();
 
@@ -50,22 +51,30 @@ async function regenerateEmbeddings(chatbotId) {
     console.log(`✅ Found ${chunks.length} chunks\n`);
 
     // Check current embedding dimensions
-    const sampleChunk = chunks.find(c => c.embedding && c.embedding.length > 0);
+    const sampleChunk = chunks.find(
+      (c) => c.embedding && c.embedding.length > 0
+    );
     if (sampleChunk) {
-      console.log(`Current embedding dimension: ${sampleChunk.embedding.length}`);
+      console.log(
+        `Current embedding dimension: ${sampleChunk.embedding.length}`
+      );
       console.log(`New embedding dimension: 768 (Gemini API)\n`);
     }
 
     // Extract text content from chunks
     console.log('🔄 Generating new embeddings...');
-    const texts = chunks.map(chunk => chunk.content);
+    const texts = chunks.map((chunk) => chunk.content);
 
     // Generate new embeddings in batches
     const newEmbeddings = await generateEmbeddingsBatch(texts, {
       batchSize: 10,
       onProgress: (progress) => {
-        console.log(`   Progress: ${progress.current}/${progress.total} (${progress.progress.toFixed(1)}%)`);
-      }
+        console.log(
+          `   Progress: ${progress.current}/${
+            progress.total
+          } (${progress.progress.toFixed(1)}%)`
+        );
+      },
     });
 
     console.log(`✅ Generated ${newEmbeddings.length} new embeddings\n`);
@@ -80,22 +89,23 @@ async function regenerateEmbeddings(chatbotId) {
             embedding: newEmbeddings[index],
             embeddingUpdatedAt: new Date(),
             embeddingModel: 'text-embedding-004',
-            embeddingProvider: 'Google Gemini'
-          }
-        }
-      }
+            embeddingProvider: 'Google Gemini',
+          },
+        },
+      },
     }));
 
     const result = await db.collection('chunks').bulkWrite(bulkOps);
-    
+
     console.log(`✅ Updated ${result.modifiedCount} chunks\n`);
 
     console.log('='.repeat(80));
     console.log('✅ EMBEDDINGS REGENERATION COMPLETE');
     console.log('='.repeat(80));
-    console.log(`\nYour chatbot "${chatbotId}" now uses the new Gemini embeddings!`);
+    console.log(
+      `\nYour chatbot "${chatbotId}" now uses the new Gemini embeddings!`
+    );
     console.log('You can now use it in embeds and on your website.\n');
-
   } catch (error) {
     console.error('\n❌ Error regenerating embeddings:', error);
     console.error('Stack:', error.stack);

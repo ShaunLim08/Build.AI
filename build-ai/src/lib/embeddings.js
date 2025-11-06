@@ -3,7 +3,8 @@
  * Fast, serverless-friendly, and free!
  */
 
-const GEMINI_EMBEDDING_API = 'https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent';
+const GEMINI_EMBEDDING_API =
+  'https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent';
 
 function getApiKey() {
   const apiKey = process.env.GEMINI_API_KEY;
@@ -35,18 +36,20 @@ export async function generateEmbedding(text) {
       body: JSON.stringify({
         model: 'models/text-embedding-004',
         content: {
-          parts: [{ text: cleanedText }]
-        }
+          parts: [{ text: cleanedText }],
+        },
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`Gemini Embedding API error: ${response.status} ${errorText}`);
+      throw new Error(
+        `Gemini Embedding API error: ${response.status} ${errorText}`
+      );
     }
 
     const data = await response.json();
-    
+
     if (!data.embedding || !data.embedding.values) {
       throw new Error('Invalid response from Gemini Embedding API');
     }
@@ -84,22 +87,26 @@ export async function generateEmbeddingsBatch(texts, options = {}) {
         current: batchEnd,
         total: texts.length,
         batchSize: batch.length,
-        progress: (batchEnd / texts.length) * 100
+        progress: (batchEnd / texts.length) * 100,
       });
     }
 
-    console.log(`📊 Processing batch ${Math.floor(i / batchSize) + 1}: ${i + 1}-${batchEnd} of ${texts.length}`);
+    console.log(
+      `📊 Processing batch ${Math.floor(i / batchSize) + 1}: ${
+        i + 1
+      }-${batchEnd} of ${texts.length}`
+    );
 
     // Generate embeddings for batch in parallel
     const batchEmbeddings = await Promise.all(
-      batch.map(text => generateEmbedding(text))
+      batch.map((text) => generateEmbedding(text))
     );
 
     embeddings.push(...batchEmbeddings);
 
     // Small delay to avoid rate limiting
     if (i + batchSize < texts.length) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
   }
 
@@ -149,9 +156,9 @@ export function findSimilar(queryEmbedding, documents, topK = 5) {
   }
 
   // Calculate similarities
-  const similarities = documents.map(doc => ({
+  const similarities = documents.map((doc) => ({
     similarity: cosineSimilarity(queryEmbedding, doc.embedding),
-    data: doc.data
+    data: doc.data,
   }));
 
   // Sort by similarity (highest first) and return top K
@@ -169,7 +176,7 @@ export function getModelInfo() {
     provider: 'Google Gemini',
     dimensions: 768,
     maxTokens: 2048,
-    description: 'Google\'s text embedding model - fast and accurate',
+    description: "Google's text embedding model - fast and accurate",
     cost: 'Free tier available',
   };
 }
