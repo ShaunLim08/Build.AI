@@ -55,7 +55,11 @@ export async function POST(request, { params }) {
     } = body;
 
     // Validate input
-    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+    if (
+      !message ||
+      typeof message !== 'string' ||
+      message.trim().length === 0
+    ) {
       return NextResponse.json(
         { success: false, error: 'Message is required' },
         {
@@ -64,7 +68,7 @@ export async function POST(request, { params }) {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type',
-          }
+          },
         }
       );
     }
@@ -90,7 +94,7 @@ export async function POST(request, { params }) {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type',
-          }
+          },
         }
       );
     }
@@ -114,10 +118,7 @@ export async function POST(request, { params }) {
 
     // Step 4: Semantic search for relevant chunks
     console.log('📌 STEP 4: Performing semantic search...');
-    const {
-      limit = 5,
-      minSimilarity = 0.3,
-    } = retrievalOptions;
+    const { limit = 5, minSimilarity = 0.3 } = retrievalOptions;
 
     const retrievedChunks = await Chunk.searchByEmbedding(
       chatbotId,
@@ -127,13 +128,21 @@ export async function POST(request, { params }) {
 
     // Filter by minimum similarity
     const relevantChunks = retrievedChunks.filter(
-      chunk => chunk.similarity >= minSimilarity
+      (chunk) => chunk.similarity >= minSimilarity
     );
 
     console.log(`✅ Found ${relevantChunks.length} relevant chunks`);
     if (relevantChunks.length > 0) {
-      console.log(`   Top similarity: ${(relevantChunks[0].similarity * 100).toFixed(1)}%`);
-      console.log(`   Avg similarity: ${(relevantChunks.reduce((sum, c) => sum + c.similarity, 0) / relevantChunks.length * 100).toFixed(1)}%`);
+      console.log(
+        `   Top similarity: ${(relevantChunks[0].similarity * 100).toFixed(1)}%`
+      );
+      console.log(
+        `   Avg similarity: ${(
+          (relevantChunks.reduce((sum, c) => sum + c.similarity, 0) /
+            relevantChunks.length) *
+          100
+        ).toFixed(1)}%`
+      );
     }
     console.log('');
 
@@ -143,24 +152,30 @@ export async function POST(request, { params }) {
       console.log('   The chatbot needs documents to be uploaded first.');
       console.log('');
 
-      return NextResponse.json({
-        success: false,
-        error: 'No knowledge base found',
-        message: 'This chatbot doesn\'t have any documents uploaded yet. Please upload documents first.',
-      }, {
-        status: 400,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'No knowledge base found',
+          message:
+            "This chatbot doesn't have any documents uploaded yet. Please upload documents first.",
+        },
+        {
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          },
         }
-      });
+      );
     }
 
     // Step 5: Calculate relevance metrics
     const metrics = calculateRelevanceMetrics(relevantChunks);
     console.log('📊 Relevance Metrics:');
-    console.log(`   Quality Score: ${(metrics.qualityScore * 100).toFixed(1)}%`);
+    console.log(
+      `   Quality Score: ${(metrics.qualityScore * 100).toFixed(1)}%`
+    );
     console.log(`   Confidence: ${metrics.confidence}`);
     console.log('');
 
@@ -192,7 +207,9 @@ export async function POST(request, { params }) {
     );
 
     console.log('📌 STEP 7: Generating response with Gemini...');
-    console.log(`   Model: ${generationOptions.model || 'gemini-2.0-flash-exp'}`);
+    console.log(
+      `   Model: ${generationOptions.model || 'gemini-2.0-flash-exp'}`
+    );
     console.log(`   Stream: ${stream}`);
     console.log('');
 
@@ -217,7 +234,9 @@ export async function POST(request, { params }) {
               },
               (chunk) => {
                 // Send each chunk to the client
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ chunk })}\n\n`));
+                controller.enqueue(
+                  encoder.encode(`data: ${JSON.stringify({ chunk })}\n\n`)
+                );
               }
             );
 
@@ -234,7 +253,7 @@ export async function POST(request, { params }) {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
-          'Connection': 'keep-alive',
+          Connection: 'keep-alive',
         },
       });
     } else {
@@ -277,24 +296,26 @@ export async function POST(request, { params }) {
             conversation = await Conversation.create({
               chatbotId,
               sessionId,
-              messages: [{
-                role: 'user',
-                content: originalQuery,
-                timestamp: new Date()
-              }]
+              messages: [
+                {
+                  role: 'user',
+                  content: originalQuery,
+                  timestamp: new Date(),
+                },
+              ],
             });
             console.log('✅ New conversation created');
           } else {
             // Add user message to existing conversation
             await Conversation.addMessage(sessionId, {
               role: 'user',
-              content: originalQuery
+              content: originalQuery,
             });
             console.log('✅ User message added to conversation');
           }
 
           // Add assistant message with sources
-          const sourceChunkIds = relevantChunks.map(chunk => chunk._id);
+          const sourceChunkIds = relevantChunks.map((chunk) => chunk._id);
           await Conversation.addMessage(sessionId, {
             role: 'assistant',
             content: responseText,
@@ -304,8 +325,8 @@ export async function POST(request, { params }) {
               usage: usage,
               processingTime: totalTime,
               qualityScore: metrics.qualityScore,
-              confidence: metrics.confidence
-            }
+              confidence: metrics.confidence,
+            },
           });
           console.log('✅ Assistant message saved with sources');
           console.log('');
@@ -316,36 +337,38 @@ export async function POST(request, { params }) {
       }
 
       // Return complete response with CORS headers
-      return NextResponse.json({
-        success: true,
-        response: responseText,
-        metadata: {
-          chatbotId,
-          query: originalQuery,
-          optimizedQuery,
-          retrieval: {
-            chunksRetrieved: retrievedChunks.length,
-            chunksUsed: contextData.chunksUsed,
-            sources: contextData.sources,
-            metrics: metrics,
+      return NextResponse.json(
+        {
+          success: true,
+          response: responseText,
+          metadata: {
+            chatbotId,
+            query: originalQuery,
+            optimizedQuery,
+            retrieval: {
+              chunksRetrieved: retrievedChunks.length,
+              chunksUsed: contextData.chunksUsed,
+              sources: contextData.sources,
+              metrics: metrics,
+            },
+            generation: {
+              model: completion.model,
+              usage: usage,
+            },
+            citations,
+            processingTime: totalTime,
+            timestamp: new Date().toISOString(),
           },
-          generation: {
-            model: completion.model,
-            usage: usage,
-          },
-          citations,
-          processingTime: totalTime,
-          timestamp: new Date().toISOString(),
         },
-      }, {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
+        {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+          },
         }
-      });
+      );
     }
-
   } catch (error) {
     console.error('\n❌ RAG PIPELINE ERROR:', error);
     console.error('Stack:', error.stack);
@@ -364,7 +387,7 @@ export async function POST(request, { params }) {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type',
-          }
+          },
         }
       );
     }
@@ -373,7 +396,8 @@ export async function POST(request, { params }) {
       {
         success: false,
         error: error.message || 'Failed to process chat request',
-        details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+        details:
+          process.env.NODE_ENV === 'development' ? error.stack : undefined,
       },
       {
         status: 500,
@@ -381,7 +405,7 @@ export async function POST(request, { params }) {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
-        }
+        },
       }
     );
   }
