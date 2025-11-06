@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 /**
  * ChatInterface Component
@@ -169,7 +171,30 @@ export default function ChatInterface({ chatbotId, chatbotName = 'AI Assistant' 
                   : 'bg-gray-100 text-gray-900'
               }`}
             >
-              <div className="whitespace-pre-wrap break-words">{message.content}</div>
+              <div className="break-words prose prose-sm max-w-none prose-invert">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                    ul: ({ children }) => <ul className="mb-2 ml-4 list-disc">{children}</ul>,
+                    ol: ({ children }) => <ol className="mb-2 ml-4 list-decimal">{children}</ol>,
+                    li: ({ children }) => <li className="mb-1">{children}</li>,
+                    strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                    code: ({ inline, children }) =>
+                      inline ? (
+                        <code className="px-1 py-0.5 rounded text-xs font-mono bg-black/10">
+                          {children}
+                        </code>
+                      ) : (
+                        <code className="block p-2 rounded text-xs font-mono bg-black/10 overflow-x-auto">
+                          {children}
+                        </code>
+                      ),
+                  }}
+                >
+                  {message.content}
+                </ReactMarkdown>
+              </div>
 
               <div className="flex items-center justify-between mt-2 text-xs opacity-70">
                 <span>{formatTimestamp(message.timestamp)}</span>

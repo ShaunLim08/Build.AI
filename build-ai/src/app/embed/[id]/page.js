@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, Send, Minimize2, Maximize2, Volume2, VolumeX } from 'lucide-react';
 import Link from 'next/link';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function EmbedPage({ params }) {
   const [chatbotId, setChatbotId] = useState(null);
@@ -351,8 +353,36 @@ export default function EmbedPage({ params }) {
                             </span>
                           )}
                         </div>
-                        <div className="text-sm whitespace-pre-wrap break-words">
-                          {message.content}
+                        <div className="text-sm break-words prose prose-sm max-w-none prose-invert">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              // Custom styling for markdown elements
+                              p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                              ul: ({ children }) => <ul className="mb-2 ml-4 list-disc">{children}</ul>,
+                              ol: ({ children }) => <ol className="mb-2 ml-4 list-decimal">{children}</ol>,
+                              li: ({ children }) => <li className="mb-1">{children}</li>,
+                              strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                              em: ({ children }) => <em className="italic">{children}</em>,
+                              code: ({ inline, children }) =>
+                                inline ? (
+                                  <code className="px-1 py-0.5 rounded text-xs font-mono bg-black/20">
+                                    {children}
+                                  </code>
+                                ) : (
+                                  <code className="block p-2 rounded text-xs font-mono bg-black/20 overflow-x-auto">
+                                    {children}
+                                  </code>
+                                ),
+                              a: ({ href, children }) => (
+                                <a href={href} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">
+                                  {children}
+                                </a>
+                              ),
+                            }}
+                          >
+                            {message.content}
+                          </ReactMarkdown>
                         </div>
 
                         {/* Metadata for assistant messages */}
