@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Widget Configuration Tests</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #6366f1;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #4f46e5;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Widget Advanced Testing</h1>
+
+  <div class="test-section">
+    <h2>Test 1: Different Positions</h2>
+    <p>Test the widget in different screen positions</p>
+    <button onclick="changePosition('bottom-right')">Bottom Right</button>
+    <button onclick="changePosition('bottom-left')">Bottom Left</button>
+    <button onclick="changePosition('top-right')">Top Right</button>
+    <button onclick="changePosition('top-left')">Top Left</button>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 2: Different Colors</h2>
+    <button onclick="changeColor('#6366f1', 'Indigo')">Indigo</button>
+    <button onclick="changeColor('#ef4444', 'Red')">Red</button>
+    <button onclick="changeColor('#10b981', 'Green')">Green</button>
+    <button onclick="changeColor('#f59e0b', 'Amber')">Amber</button>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 3: Programmatic Control</h2>
+    <button onclick="openWidget()">Open Widget</button>
+    <button onclick="closeWidget()">Close Widget</button>
+    <button onclick="toggleWidget()">Toggle Widget</button>
+    <button onclick="destroyWidget()">Destroy Widget</button>
+    <button onclick="reloadWidget()">Reload Widget</button>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 4: Mobile Responsiveness</h2>
+    <p>Resize your browser window to test mobile view</p>
+    <p>Or open DevTools (F12) and toggle device toolbar</p>
+  </div>
+
+  <div id="widget-container"></div>
+
+  <script src="./public/widget.js"></script>
+  <script>
+    let widgetInstance = null;
+
+    // Initialize widget
+    function initWidget(config = {}) {
+      if (widgetInstance) {
+        widgetInstance.destroy();
+      }
+
+      widgetInstance = new BuildAIChatbot({
+        chatbotId: '690d766aaab28cbf91ac9b6b',
+        position: config.position || 'bottom-right',
+        primaryColor: config.primaryColor || '#6366f1',
+        backgroundColor: '#0a0808',
+        textColor: '#ffffff',
+        showWatermark: true,
+        baseUrl: 'https://build-ai-shaun.vercel.app',
+        ...config
+      });
+    }
+
+    function changePosition(position) {
+      console.log('Changing position to:', position);
+      initWidget({ position });
+    }
+
+    function changeColor(color, name) {
+      console.log('Changing color to:', name);
+      initWidget({ primaryColor: color });
+    }
+
+    function openWidget() {
+      if (widgetInstance && widgetInstance.open) {
+        widgetInstance.open();
+      }
+    }
+
+    function closeWidget() {
+      if (widgetInstance && widgetInstance.close) {
+        widgetInstance.close();
+      }
+    }
+
+    function toggleWidget() {
+      if (widgetInstance && widgetInstance.toggle) {
+        widgetInstance.toggle();
+      }
+    }
+
+    function destroyWidget() {
+      if (widgetInstance && widgetInstance.destroy) {
+        widgetInstance.destroy();
+        widgetInstance = null;
+        console.log('Widget destroyed');
+      }
+    }
+
+    function reloadWidget() {
+      initWidget();
+      console.log('Widget reloaded');
+    }
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      initWidget();
+    });
+  </script>
+</body>
+</html>

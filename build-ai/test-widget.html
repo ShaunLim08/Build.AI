@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Build.AI Chatbot Widget</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      margin-bottom: 30px;
+    }
+    h1 {
+      color: #333;
+      margin-top: 0;
+    }
+    p {
+      color: #666;
+      line-height: 1.6;
+    }
+    .feature {
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+    .cta {
+      display: inline-block;
+      background: #6366f1;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 6px;
+      text-decoration: none;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🤖 Build.AI Chatbot Widget Test</h1>
+    <p>This page demonstrates the chatbot widget. Look for the chat bubble in the bottom-right corner!</p>
+    
+    <div class="feature">
+      <h3>✨ Features to Test:</h3>
+      <ul>
+        <li>Widget appears in bottom-right corner</li>
+        <li>Click to open/close the chat</li>
+        <li>Send messages and get responses</li>
+        <li>Test markdown formatting in responses</li>
+        <li>Check if the widget is responsive on mobile</li>
+        <li>Verify the colors match your brand</li>
+      </ul>
+    </div>
+
+    <div class="feature">
+      <h3>📝 Sample Questions:</h3>
+      <ul>
+        <li>How do I bake a butter cake?</li>
+        <li>What temperature should I use?</li>
+        <li>What ingredients do I need?</li>
+      </ul>
+    </div>
+
+    <a href="#" class="cta">Learn More About Build.AI</a>
+  </div>
+
+  <div class="card">
+    <h2>About This Demo</h2>
+    <p>This is a test page for the Build.AI chatbot widget. The widget should load automatically and appear in the bottom-right corner of your screen.</p>
+    <p>Try asking questions about butter cake baking to test the RAG capabilities!</p>
+  </div>
+
+  <!-- Build.AI Chatbot Widget -->
+  <script src="./public/widget.js"
+    data-chatbot-id="690d766aaab28cbf91ac9b6b"
+    data-position="bottom-right"
+    data-primary-color="#6366f1"
+    data-bg-color="#0a0808"
+    data-text-color="#ffffff"
+    data-watermark="true"
+    data-base-url="https://build-ai-shaun.vercel.app">
+  </script>
+</body>
+</html>
