@@ -10,8 +10,8 @@ export default function ChatPage({ params }) {
       id: 1,
       type: 'bot',
       content: "Hello! I'm your AI assistant. How can I help you today?",
-      timestamp: new Date().toISOString()
-    }
+      timestamp: new Date().toISOString(),
+    },
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -55,10 +55,10 @@ export default function ChatPage({ params }) {
       id: Date.now(),
       type: 'user',
       content: inputValue.trim(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
     setError(null);
@@ -67,9 +67,9 @@ export default function ChatPage({ params }) {
       // Build conversation history (last 10 messages, excluding system message)
       const history = messages
         .slice(1) // Skip initial welcome message
-        .map(msg => ({
+        .map((msg) => ({
           role: msg.type === 'user' ? 'user' : 'assistant',
-          content: msg.content
+          content: msg.content,
         }));
 
       console.log('Sending request to RAG pipeline...');
@@ -98,11 +98,10 @@ export default function ChatPage({ params }) {
         type: 'bot',
         content: data.response,
         timestamp: new Date().toISOString(),
-        metadata: data.metadata
+        metadata: data.metadata,
       };
 
-      setMessages(prev => [...prev, botResponse]);
-
+      setMessages((prev) => [...prev, botResponse]);
     } catch (error) {
       console.error('Error sending message:', error);
       setError(error.message);
@@ -112,10 +111,10 @@ export default function ChatPage({ params }) {
         id: Date.now() + 1,
         type: 'error',
         content: `Error: ${error.message}`,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
@@ -127,8 +126,8 @@ export default function ChatPage({ params }) {
         id: 1,
         type: 'bot',
         content: "Hello! I'm your AI assistant. How can I help you today?",
-        timestamp: new Date().toISOString()
-      }
+        timestamp: new Date().toISOString(),
+      },
     ]);
     setError(null);
   };
@@ -163,10 +162,7 @@ export default function ChatPage({ params }) {
               >
                 {showMetadata ? 'Hide' : 'Show'} Metadata
               </button>
-              <button
-                onClick={clearChat}
-                className="btn-secondary text-sm"
-              >
+              <button onClick={clearChat} className="btn-secondary text-sm">
                 Clear Chat
               </button>
               <Link href="/dashboard" className="btn-secondary text-sm">
@@ -184,7 +180,9 @@ export default function ChatPage({ params }) {
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${
+                message.type === 'user' ? 'justify-end' : 'justify-start'
+              }`}
             >
               <div
                 className={`max-w-[80%] rounded-lg p-4 ${
@@ -212,38 +210,50 @@ export default function ChatPage({ params }) {
                 {message.type === 'bot' && message.metadata && showMetadata && (
                   <div className="mt-4 pt-4 border-t border-border text-xs space-y-2 text-muted-foreground">
                     <div>
-                      <strong>Query Optimized:</strong> {message.metadata.optimizedQuery}
+                      <strong>Query Optimized:</strong>{' '}
+                      {message.metadata.optimizedQuery}
                     </div>
                     <div>
-                      <strong>Retrieval:</strong> {message.metadata.retrieval.chunksRetrieved}{' '}
-                      retrieved, {message.metadata.retrieval.chunksUsed} used
+                      <strong>Retrieval:</strong>{' '}
+                      {message.metadata.retrieval.chunksRetrieved} retrieved,{' '}
+                      {message.metadata.retrieval.chunksUsed} used
                     </div>
                     <div>
                       <strong>Quality Score:</strong>{' '}
-                      {(message.metadata.retrieval.metrics.qualityScore * 100).toFixed(1)}%
+                      {(
+                        message.metadata.retrieval.metrics.qualityScore * 100
+                      ).toFixed(1)}
+                      %
                     </div>
                     <div>
-                      <strong>Confidence:</strong> {message.metadata.retrieval.metrics.confidence}
+                      <strong>Confidence:</strong>{' '}
+                      {message.metadata.retrieval.metrics.confidence}
                     </div>
                     {message.metadata.retrieval.sources.length > 0 && (
                       <div>
-                        <strong>Sources:</strong> {message.metadata.retrieval.sources.join(', ')}
+                        <strong>Sources:</strong>{' '}
+                        {message.metadata.retrieval.sources.join(', ')}
                       </div>
                     )}
-                    {message.metadata.citations && message.metadata.citations.length > 0 && (
-                      <div>
-                        <strong>Citations:</strong> [{message.metadata.citations.join(', ')}]
-                      </div>
-                    )}
+                    {message.metadata.citations &&
+                      message.metadata.citations.length > 0 && (
+                        <div>
+                          <strong>Citations:</strong> [
+                          {message.metadata.citations.join(', ')}]
+                        </div>
+                      )}
                     {message.metadata.generation?.usage && (
                       <div>
-                        <strong>Tokens:</strong> {message.metadata.generation.usage.totalTokens} (
-                        {message.metadata.generation.usage.promptTokens} prompt +{' '}
-                        {message.metadata.generation.usage.completionTokens} completion)
+                        <strong>Tokens:</strong>{' '}
+                        {message.metadata.generation.usage.totalTokens} (
+                        {message.metadata.generation.usage.promptTokens} prompt
+                        + {message.metadata.generation.usage.completionTokens}{' '}
+                        completion)
                       </div>
                     )}
                     <div>
-                      <strong>Processing Time:</strong> {message.metadata.processingTime}ms
+                      <strong>Processing Time:</strong>{' '}
+                      {message.metadata.processingTime}ms
                     </div>
                   </div>
                 )}
@@ -257,10 +267,18 @@ export default function ChatPage({ params }) {
                 <div className="flex items-center space-x-2">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                    <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                    <div
+                      className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                      style={{ animationDelay: '0.1s' }}
+                    ></div>
+                    <div
+                      className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"
+                      style={{ animationDelay: '0.2s' }}
+                    ></div>
                   </div>
-                  <span className="text-sm text-muted-foreground">Thinking...</span>
+                  <span className="text-sm text-muted-foreground">
+                    Thinking...
+                  </span>
                 </div>
               </div>
             </div>
@@ -299,13 +317,16 @@ export default function ChatPage({ params }) {
               <span className="text-red-600">
                 ⚠️ {error}
                 {error.includes('GEMINI_API_KEY') && (
-                  <span> - Please set GEMINI_API_KEY in your .env.local file</span>
+                  <span>
+                    {' '}
+                    - Please set GEMINI_API_KEY in your .env.local file
+                  </span>
                 )}
               </span>
             ) : (
               <>
-                Powered by RAG (Retrieval-Augmented Generation) • Gemini 2.0 Flash •{' '}
-                <strong>gte-large (1024 dimensions)</strong>
+                Powered by RAG (Retrieval-Augmented Generation) • Gemini 2.0
+                Flash • <strong>gemini embeddings (768 dimensions)</strong>
               </>
             )}
           </p>
