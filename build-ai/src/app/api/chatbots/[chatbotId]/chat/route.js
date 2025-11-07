@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { Chatbot } from '@/models/Chatbot';
 import { Chunk } from '@/models/Chunk';
 import { Conversation } from '@/models/Conversation';
+import { ApiKey } from '@/models/ApiKey';
 import { generateEmbedding } from '@/lib/embeddings';
 import {
   optimizeQuery,
@@ -23,7 +24,8 @@ export const runtime = 'nodejs';
  * Complete RAG pipeline: retrieve context and generate response
  *
  * NOTE: This endpoint is publicly accessible for embeds and widgets.
- * Rate limiting is applied based on IP address to prevent abuse.
+ * Can be authenticated with an API key (optional).
+ * Rate limiting is applied based on IP address or API key.
  */
 export async function POST(request, { params }) {
   const startTime = Date.now();
@@ -32,24 +34,63 @@ export async function POST(request, { params }) {
     // Await params (required in Next.js 15)
     const { chatbotId } = await params;
 
-    // Apply rate limiting (using widget limits for now since no auth)
-    const rateLimitResult = await rateLimitWidget(request, chatbotId);
-    if (!rateLimitResult.allowed) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: rateLimitResult.error,
-        },
-        {
-          status: 429,
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type',
-            ...rateLimitResult.headers,
+    // Check for API key authentication (optional)
+    const authHeader = request.headers.get('authorization');
+    const apiKeyFromHeader = authHeader?.replace('Bearer ', '');
+
+    let isAuthenticated = false;
+    let apiKeyData = null;
+
+    if (apiKeyFromHeader) {
+      // Verify API key
+      const verification = await ApiKey.verify(apiKeyFromHeader, chatbotId);
+
+      if (!verification.valid) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: verification.error || 'Invalid API key',
           },
-        }
-      );
+          {
+            status: 401,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            },
+          }
+        );
+      }
+
+      isAuthenticated = true;
+      apiKeyData = verification.keyData;
+
+      // Increment API key usage
+      await ApiKey.incrementUsage(apiKeyFromHeader);
+
+      console.log(`✅ Authenticated request with API key: ${apiKeyData.name}`);
+    }
+
+    // Apply rate limiting only if not authenticated with API key
+    if (!isAuthenticated) {
+      const rateLimitResult = await rateLimitWidget(request, chatbotId);
+      if (!rateLimitResult.allowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: rateLimitResult.error,
+          },
+          {
+            status: 429,
+            headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+              ...rateLimitResult.headers,
+            },
+          }
+        );
+      }
     }
 
     const body = await request.json();
@@ -430,7 +471,7 @@ export async function OPTIONS() {
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
   });
 }

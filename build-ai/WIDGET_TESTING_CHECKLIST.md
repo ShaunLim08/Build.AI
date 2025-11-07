@@ -1,6 +1,7 @@
 # 🧪 Build.AI Widget Testing Checklist
 
 ## Visual & UI Tests
+
 - [ ] Widget bubble appears in correct position
 - [ ] Widget opens/closes smoothly with animation
 - [ ] Colors match the configuration
@@ -13,10 +14,11 @@
 - [ ] No layout shifts when loading
 
 ## Functionality Tests
+
 - [ ] Widget loads without errors
 - [ ] Can send messages successfully
 - [ ] Receives responses from chatbot
-- [ ] Markdown formatting displays correctly (**bold**, *italic*, lists)
+- [ ] Markdown formatting displays correctly (**bold**, _italic_, lists)
 - [ ] Links are clickable and open correctly
 - [ ] Code blocks are formatted properly
 - [ ] Long messages scroll correctly
@@ -26,6 +28,7 @@
 - [ ] Can minimize/maximize widget
 
 ## Performance Tests
+
 - [ ] Widget loads in < 3 seconds
 - [ ] No console errors
 - [ ] No memory leaks (check DevTools)
@@ -35,6 +38,7 @@
 - [ ] No lag when typing
 
 ## Cross-Browser Tests
+
 - [ ] Chrome
 - [ ] Firefox
 - [ ] Safari
@@ -43,6 +47,7 @@
 - [ ] Mobile Chrome (Android)
 
 ## CORS & Network Tests
+
 - [ ] Widget works on external domains
 - [ ] API calls succeed (check Network tab)
 - [ ] No CORS errors in console
@@ -50,6 +55,7 @@
 - [ ] Works on HTTP (if applicable)
 
 ## Edge Cases
+
 - [ ] Very long messages (1000+ chars)
 - [ ] Special characters in messages
 - [ ] Multiple rapid messages
@@ -59,6 +65,7 @@
 - [ ] Multiple widgets on same page (if supported)
 
 ## Content Tests
+
 - [ ] Chatbot responds with correct knowledge base info
 - [ ] Sources are cited correctly
 - [ ] Error messages are user-friendly
@@ -66,6 +73,7 @@
 - [ ] Empty state displays correctly
 
 ## Accessibility Tests
+
 - [ ] Keyboard navigation works
 - [ ] Screen reader compatible
 - [ ] Focus indicators visible
@@ -73,6 +81,7 @@
 - [ ] Can close widget with Escape key
 
 ## Security Tests
+
 - [ ] No XSS vulnerabilities
 - [ ] API calls use HTTPS
 - [ ] Session tokens handled securely
@@ -82,14 +91,16 @@
 ---
 
 ## Test Results
-**Date Tested:** _______________
-**Tester:** _______________
-**Browser:** _______________
-**Device:** _______________
+
+**Date Tested:** ******\_\_\_******
+**Tester:** ******\_\_\_******
+**Browser:** ******\_\_\_******
+**Device:** ******\_\_\_******
 
 **Issues Found:**
-1. 
-2. 
-3. 
+
+1.
+2.
+3.
 
 **Overall Rating:** ⭐⭐⭐⭐⭐
