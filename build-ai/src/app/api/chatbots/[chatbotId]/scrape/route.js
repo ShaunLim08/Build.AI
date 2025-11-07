@@ -8,6 +8,7 @@ import { ObjectId } from 'mongodb';
 import { generateEmbedding } from '@/lib/embeddings';
 
 export const runtime = 'nodejs';
+export const maxDuration = 60; // Increase timeout for web scraping
 
 // Configuration
 const CHUNK_SIZE = 1000; // Characters per chunk
@@ -16,6 +17,11 @@ const CHUNK_SIZE = 1000; // Characters per chunk
  * Splits text into chunks for vector embedding
  */
 function splitTextIntoChunks(text, source, chunkSize = CHUNK_SIZE) {
+  if (!text || typeof text !== 'string') {
+    console.warn('⚠️ Invalid text input for chunking');
+    return [];
+  }
+
   const chunks = [];
   let currentChunk = '';
   let chunkIndex = 0;
@@ -24,14 +30,20 @@ function splitTextIntoChunks(text, source, chunkSize = CHUNK_SIZE) {
   const sentences = text.split(/[.!?]+\s+/);
 
   for (const sentence of sentences) {
-    if ((currentChunk + sentence).length > chunkSize && currentChunk.length > 0) {
+    // Skip empty sentences
+    if (!sentence.trim()) continue;
+
+    if (
+      (currentChunk + sentence).length > chunkSize &&
+      currentChunk.length > 0
+    ) {
       chunks.push({
         text: currentChunk.trim(),
         metadata: {
           source,
           chunkIndex: chunkIndex++,
           type: 'web',
-        }
+        },
       });
       currentChunk = sentence;
     } else {
@@ -47,10 +59,15 @@ function splitTextIntoChunks(text, source, chunkSize = CHUNK_SIZE) {
         source,
         chunkIndex: chunkIndex++,
         type: 'web',
-      }
+      },
     });
   }
 
+  console.log(
+    `✂️ Split text into ${chunks.length} chunks (avg ${Math.round(
+      text.length / chunks.length
+    )} chars each)`
+  );
   return chunks;
 }
 
@@ -63,10 +80,7 @@ export async function POST(request, { params }) {
     // Authenticate user
     const user = await getCurrentUser();
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Await params (required in Next.js 15)
@@ -75,18 +89,12 @@ export async function POST(request, { params }) {
     // Verify chatbot exists and belongs to user
     const chatbot = await Chatbot.findById(chatbotId);
     if (!chatbot) {
-      return NextResponse.json(
-        { error: 'Chatbot not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Chatbot not found' }, { status: 404 });
     }
 
     // Compare ObjectIds by converting both to strings
     if (chatbot.userId.toString() !== user._id.toString()) {
-      return NextResponse.json(
-        { error: 'Forbidden' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Parse request body
@@ -117,11 +125,18 @@ export async function POST(request, { params }) {
       // Scrape URL
       let scrapedData;
       try {
+        console.log(`🌐 Starting scrape for: ${url}`);
         scrapedData = await scrapeUrl(url);
+        console.log(`✅ Successfully scraped: ${scrapedData.title}`);
       } catch (error) {
-        console.error('Scraping error:', error);
+        console.error('❌ Scraping error:', error.message);
+        console.error('Stack trace:', error.stack);
         return NextResponse.json(
-          { error: error.message || 'Failed to scrape URL' },
+          {
+            error: error.message || 'Failed to scrape URL',
+            details:
+              process.env.NODE_ENV === 'development' ? error.stack : undefined,
+          },
           { status: 400 }
         );
       }
@@ -153,7 +168,9 @@ export async function POST(request, { params }) {
       console.log(`\n✂️ Text split into ${textChunks.length} chunks`);
 
       // Generate embeddings for each chunk
-      console.log(`\n🔄 Generating embeddings for ${textChunks.length} chunks...`);
+      console.log(
+        `\n🔄 Generating embeddings for ${textChunks.length} chunks...`
+      );
       const chunkRecords = [];
 
       for (let i = 0; i < textChunks.length; i++) {
@@ -172,10 +189,15 @@ export async function POST(request, { params }) {
 
           // Log progress every 10 chunks
           if ((i + 1) % 10 === 0 || i === textChunks.length - 1) {
-            console.log(`   ✓ Generated ${i + 1}/${textChunks.length} embeddings`);
+            console.log(
+              `   ✓ Generated ${i + 1}/${textChunks.length} embeddings`
+            );
           }
         } catch (error) {
-          console.error(`   ❌ Error generating embedding for chunk ${i}:`, error.message);
+          console.error(
+            `   ❌ Error generating embedding for chunk ${i}:`,
+            error.message
+          );
           // Still add the chunk but with empty embedding
           chunkRecords.push({
             chatbotId: new ObjectId(chatbotId),
@@ -188,32 +210,39 @@ export async function POST(request, { params }) {
       }
 
       await Chunk.createMany(chunkRecords);
-      console.log(`✅ ${chunkRecords.length} chunks saved to MongoDB with embeddings\n`);
+      console.log(
+        `✅ ${chunkRecords.length} chunks saved to MongoDB with embeddings\n`
+      );
 
       // Update document status to processed
       await Document.updateStatus(document._id, 'processed', {
         chunkCount: chunkRecords.length,
       });
 
-      return NextResponse.json({
-        success: true,
-        document: {
-          ...document,
-          status: 'processed',
-          chunkCount: chunkRecords.length,
+      return NextResponse.json(
+        {
+          success: true,
+          document: {
+            ...document,
+            status: 'processed',
+            chunkCount: chunkRecords.length,
+          },
+          scrapedData: {
+            title: scrapedData.title,
+            url: scrapedData.url,
+            wordCount: scrapedData.wordCount,
+            chunkCount: chunkRecords.length,
+          },
         },
-        scrapedData: {
-          title: scrapedData.title,
-          url: scrapedData.url,
-          wordCount: scrapedData.wordCount,
-          chunkCount: chunkRecords.length,
-        },
-      }, { status: 201 });
+        { status: 201 }
+      );
     }
 
     // Handle multiple URLs
     if (urls && Array.isArray(urls)) {
-      console.log(`\n📄 Processing ${urls.length} URLs for chatbot: ${chatbot.name}`);
+      console.log(
+        `\n📄 Processing ${urls.length} URLs for chatbot: ${chatbot.name}`
+      );
 
       // Limit number of URLs
       if (urls.length > 10) {
@@ -224,17 +253,17 @@ export async function POST(request, { params }) {
       }
 
       // Validate all URLs first
-      const validationResults = urls.map(url => ({
+      const validationResults = urls.map((url) => ({
         url,
         validation: validateUrl(url),
       }));
 
-      const invalidUrls = validationResults.filter(r => !r.validation.valid);
+      const invalidUrls = validationResults.filter((r) => !r.validation.valid);
       if (invalidUrls.length > 0) {
         return NextResponse.json(
           {
             error: 'Some URLs are invalid',
-            invalidUrls: invalidUrls.map(r => ({
+            invalidUrls: invalidUrls.map((r) => ({
               url: r.url,
               errors: r.validation.errors,
             })),
@@ -244,7 +273,9 @@ export async function POST(request, { params }) {
       }
 
       // Scrape all URLs
-      const scrapeResults = await scrapeMultipleUrls(urls, { continueOnError: true });
+      const scrapeResults = await scrapeMultipleUrls(urls, {
+        continueOnError: true,
+      });
 
       // Process successful scrapes
       const documents = [];
@@ -292,7 +323,10 @@ export async function POST(request, { params }) {
                   metadata: chunk.metadata,
                 });
               } catch (error) {
-                console.error(`Error generating embedding for chunk ${i}:`, error.message);
+                console.error(
+                  `Error generating embedding for chunk ${i}:`,
+                  error.message
+                );
                 chunkRecords.push({
                   chatbotId: new ObjectId(chatbotId),
                   documentId: document._id,
@@ -316,24 +350,29 @@ export async function POST(request, { params }) {
               chunkCount: chunkRecords.length,
             });
           } catch (error) {
-            console.error(`Failed to process scraped content from ${result.url}:`, error);
+            console.error(
+              `Failed to process scraped content from ${result.url}:`,
+              error
+            );
           }
         }
       }
 
-      return NextResponse.json({
-        success: true,
-        summary: {
-          totalRequested: urls.length,
-          successCount: scrapeResults.successCount,
-          errorCount: scrapeResults.errorCount,
-          documentsCreated: documents.length,
+      return NextResponse.json(
+        {
+          success: true,
+          summary: {
+            totalRequested: urls.length,
+            successCount: scrapeResults.successCount,
+            errorCount: scrapeResults.errorCount,
+            documentsCreated: documents.length,
+          },
+          documents,
+          errors: scrapeResults.errors,
         },
-        documents,
-        errors: scrapeResults.errors,
-      }, { status: 201 });
+        { status: 201 }
+      );
     }
-
   } catch (error) {
     console.error('Web scraping error:', error);
     return NextResponse.json(
@@ -352,10 +391,7 @@ export async function GET(request, { params }) {
     // Authenticate user
     const user = await getCurrentUser();
     if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // Get URL from query params
@@ -377,7 +413,6 @@ export async function GET(request, { params }) {
       errors: validation.errors,
       sanitizedUrl: validation.sanitizedUrl,
     });
-
   } catch (error) {
     console.error('URL validation error:', error);
     return NextResponse.json(

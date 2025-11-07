@@ -1,5 +1,3 @@
-import { JSDOM } from 'jsdom';
-import { Readability } from '@mozilla/readability';
 import * as cheerio from 'cheerio';
 
 /**
@@ -7,7 +5,8 @@ import * as cheerio from 'cheerio';
  */
 const MAX_CONTENT_LENGTH = 5000000; // 5MB
 const REQUEST_TIMEOUT = 30000; // 30 seconds
-const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+const USER_AGENT =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 /**
  * Validates and sanitizes a URL
@@ -44,14 +43,14 @@ export function validateUrl(url) {
 
   // Check for localhost/private IPs (security)
   const hostname = parsedUrl.hostname.toLowerCase();
-  const blockedHosts = [
-    'localhost',
-    '127.0.0.1',
-    '0.0.0.0',
-    '::1',
-  ];
+  const blockedHosts = ['localhost', '127.0.0.1', '0.0.0.0', '::1'];
 
-  if (blockedHosts.includes(hostname) || hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.startsWith('172.')) {
+  if (
+    blockedHosts.includes(hostname) ||
+    hostname.startsWith('192.168.') ||
+    hostname.startsWith('10.') ||
+    hostname.startsWith('172.')
+  ) {
     errors.push('Cannot scrape local or private network addresses');
   }
 
@@ -79,11 +78,12 @@ async function fetchHtml(url) {
       method: 'GET',
       headers: {
         'User-Agent': USER_AGENT,
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Language': 'en-US,en;q=0.5',
         'Accept-Encoding': 'gzip, deflate, br',
-        'DNT': '1',
-        'Connection': 'keep-alive',
+        DNT: '1',
+        Connection: 'keep-alive',
         'Upgrade-Insecure-Requests': '1',
       },
       signal: controller.signal,
@@ -105,14 +105,18 @@ async function fetchHtml(url) {
     // Check content length
     const contentLength = response.headers.get('content-length');
     if (contentLength && parseInt(contentLength) > MAX_CONTENT_LENGTH) {
-      throw new Error(`Content too large: ${contentLength} bytes (max ${MAX_CONTENT_LENGTH})`);
+      throw new Error(
+        `Content too large: ${contentLength} bytes (max ${MAX_CONTENT_LENGTH})`
+      );
     }
 
     const html = await response.text();
 
     // Double-check actual content length
     if (html.length > MAX_CONTENT_LENGTH) {
-      throw new Error(`Content too large: ${html.length} bytes (max ${MAX_CONTENT_LENGTH})`);
+      throw new Error(
+        `Content too large: ${html.length} bytes (max ${MAX_CONTENT_LENGTH})`
+      );
     }
 
     return {
@@ -120,12 +124,13 @@ async function fetchHtml(url) {
       finalUrl: response.url,
       contentType,
     };
-
   } catch (error) {
     clearTimeout(timeoutId);
 
     if (error.name === 'AbortError') {
-      throw new Error(`Request timeout after ${REQUEST_TIMEOUT / 1000} seconds`);
+      throw new Error(
+        `Request timeout after ${REQUEST_TIMEOUT / 1000} seconds`
+      );
     }
 
     throw error;
@@ -133,36 +138,8 @@ async function fetchHtml(url) {
 }
 
 /**
- * Extracts main content using Mozilla Readability
- * This removes navigation, footers, ads, etc.
- */
-function extractWithReadability(html, url) {
-  try {
-    const dom = new JSDOM(html, { url });
-    const reader = new Readability(dom.window.document);
-    const article = reader.parse();
-
-    if (!article) {
-      return null;
-    }
-
-    return {
-      title: article.title || '',
-      content: article.textContent || '',
-      excerpt: article.excerpt || '',
-      byline: article.byline || '',
-      length: article.length || 0,
-      siteName: article.siteName || '',
-    };
-  } catch (error) {
-    console.error('Readability extraction failed:', error);
-    return null;
-  }
-}
-
-/**
- * Fallback content extraction using Cheerio
- * Used when Readability fails
+ * Content extraction using Cheerio
+ * Reliable and works in all serverless environments
  */
 function extractWithCheerio(html, url) {
   try {
@@ -227,16 +204,19 @@ function extractWithCheerio(html, url) {
       content = $('p')
         .map((i, el) => $(el).text().trim())
         .get()
-        .filter(text => text.length > 20)
+        .filter((text) => text.length > 20)
         .join('\n\n');
     }
 
     // Extract metadata
-    const description = $('meta[name="description"]').attr('content') ||
-                       $('meta[property="og:description"]').attr('content') || '';
+    const description =
+      $('meta[name="description"]').attr('content') ||
+      $('meta[property="og:description"]').attr('content') ||
+      '';
 
-    const siteName = $('meta[property="og:site_name"]').attr('content') ||
-                    new URL(url).hostname;
+    const siteName =
+      $('meta[property="og:site_name"]').attr('content') ||
+      new URL(url).hostname;
 
     return {
       title: title || 'Untitled',
@@ -291,16 +271,9 @@ export async function scrapeUrl(url) {
   const { html, finalUrl, contentType } = await fetchHtml(sanitizedUrl);
   console.log(`✓ Fetched ${html.length} bytes from ${finalUrl}`);
 
-  // Try Readability first (best for articles)
-  console.log('🔍 Extracting content with Readability...');
-  let extracted = extractWithReadability(html, finalUrl);
-
-  // Fallback to Cheerio if Readability fails
-  if (!extracted || extracted.content.length < 100) {
-    console.log('⚠️  Readability extraction failed or returned insufficient content');
-    console.log('🔍 Trying fallback extraction with Cheerio...');
-    extracted = extractWithCheerio(html, finalUrl);
-  }
+  // Extract content with Cheerio (serverless-friendly)
+  console.log('🔍 Extracting content with Cheerio...');
+  const extracted = extractWithCheerio(html, finalUrl);
 
   if (!extracted || !extracted.content) {
     throw new Error('Failed to extract content from webpage');
@@ -316,7 +289,9 @@ export async function scrapeUrl(url) {
   }
 
   // Count words
-  const wordCount = extracted.content.split(/\s+/).filter(word => word.length > 0).length;
+  const wordCount = extracted.content
+    .split(/\s+/)
+    .filter((word) => word.length > 0).length;
 
   console.log(`✓ Extraction successful:`);
   console.log(`   - Title: ${extracted.title}`);
@@ -350,14 +325,24 @@ export async function scrapeMultipleUrls(urls, options = {}) {
 
     try {
       if (onProgress) {
-        onProgress({ current: i + 1, total: urls.length, url, status: 'scraping' });
+        onProgress({
+          current: i + 1,
+          total: urls.length,
+          url,
+          status: 'scraping',
+        });
       }
 
       const result = await scrapeUrl(url);
       results.push({ success: true, url, data: result });
 
       if (onProgress) {
-        onProgress({ current: i + 1, total: urls.length, url, status: 'success' });
+        onProgress({
+          current: i + 1,
+          total: urls.length,
+          url,
+          status: 'success',
+        });
       }
     } catch (error) {
       console.error(`Failed to scrape ${url}:`, error.message);
@@ -365,7 +350,13 @@ export async function scrapeMultipleUrls(urls, options = {}) {
       results.push({ success: false, url, error: error.message });
 
       if (onProgress) {
-        onProgress({ current: i + 1, total: urls.length, url, status: 'error', error: error.message });
+        onProgress({
+          current: i + 1,
+          total: urls.length,
+          url,
+          status: 'error',
+          error: error.message,
+        });
       }
 
       if (!continueOnError) {
@@ -375,7 +366,7 @@ export async function scrapeMultipleUrls(urls, options = {}) {
 
     // Add delay between requests to be respectful
     if (i < urls.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 
@@ -383,7 +374,7 @@ export async function scrapeMultipleUrls(urls, options = {}) {
     results,
     errors,
     totalProcessed: results.length,
-    successCount: results.filter(r => r.success).length,
+    successCount: results.filter((r) => r.success).length,
     errorCount: errors.length,
   };
 }
