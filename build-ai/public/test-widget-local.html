@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Build.AI Chatbot Widget (Local)</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        margin-bottom: 30px;
+      }
+      h1 {
+        color: #333;
+        margin-top: 0;
+      }
+      p {
+        color: #666;
+        line-height: 1.6;
+      }
+      .feature {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin: 10px 0;
+      }
+      .cta {
+        display: inline-block;
+        background: #6366f1;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 6px;
+        text-decoration: none;
+        margin-top: 20px;
+      }
+      .alert {
+        background: #dbeafe;
+        border-left: 4px solid #3b82f6;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 6px;
+      }
+      .alert h4 {
+        margin: 0 0 10px 0;
+        color: #1e40af;
+      }
+      .alert p {
+        margin: 0;
+        color: #1e3a8a;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="alert">
+        <h4>🚀 Widget Test Page</h4>
+        <p>
+          <strong>Local:</strong>
+          http://localhost:3000/test-widget-local.html<br />
+          <strong>Production:</strong>
+          https://build-ai-shaun.vercel.app/test-widget-local.html
+        </p>
+      </div>
+
+      <h1>🤖 Build.AI Chatbot Widget Test</h1>
+      <p>
+        This page demonstrates the chatbot widget. Look for the chat bubble in
+        the bottom-right corner!
+      </p>
+
+      <div class="feature">
+        <h3>✨ Features to Test:</h3>
+        <ul>
+          <li>Widget appears in bottom-right corner</li>
+          <li>Click to open/close the chat</li>
+          <li>Send messages and get responses</li>
+          <li>Test markdown formatting in responses</li>
+          <li>Check if the widget is responsive on mobile</li>
+          <li>Verify the colors match your brand</li>
+        </ul>
+      </div>
+
+      <div class="feature">
+        <h3>📝 Sample Questions:</h3>
+        <ul>
+          <li>How do I bake a butter cake?</li>
+          <li>What temperature should I use?</li>
+          <li>What ingredients do I need?</li>
+        </ul>
+      </div>
+
+      <a href="#" class="cta">Learn More About Build.AI</a>
+    </div>
+
+    <div class="card">
+      <h2>About This Demo</h2>
+      <p>
+        This is a test page for the Build.AI chatbot widget. The widget loads
+        from the same server as this page.
+      </p>
+      <p>
+        Try asking questions about butter cake baking to test the RAG
+        capabilities!
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>🔧 Integration Methods</h2>
+
+      <h3>Method 1: Declarative (Currently Used)</h3>
+      <pre
+        style="
+          background: #f5f5f5;
+          padding: 15px;
+          border-radius: 6px;
+          overflow-x: auto;
+        "
+      ><code>&lt;script src="https://build-ai-shaun.vercel.app/widget.js"
+  data-chatbot-id="690d766aaab28cbf91ac9b6b"
+  data-position="bottom-right"
+  data-primary-color="#ff4d00"
+  data-bg-color="#ffd500"
+  data-text-color="#000000"
+  data-watermark="true"&gt;
+&lt;/script&gt;</code></pre>
+
+      <h3>Method 2: Programmatic</h3>
+      <pre
+        style="
+          background: #f5f5f5;
+          padding: 15px;
+          border-radius: 6px;
+          overflow-x: auto;
+        "
+      ><code>&lt;script src="https://build-ai-shaun.vercel.app/widget.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  new BuildAIChatbot({
+    chatbotId: '690d766aaab28cbf91ac9b6b',
+    position: 'bottom-right',
+    primaryColor: '#ff4d00',
+    backgroundColor: '#ffd500',
+    textColor: '#000000',
+    showWatermark: true,
+    baseUrl: 'https://build-ai-shaun.vercel.app'
+  });
+&lt;/script&gt;</code></pre>
+
+      <h3>🎨 Customization Options</h3>
+      <ul>
+        <li><code>chatbotId</code> - Your chatbot's unique identifier</li>
+        <li>
+          <code>position</code> - Widget position: bottom-right, bottom-left,
+          top-right, top-left
+        </li>
+        <li>
+          <code>primaryColor</code> - Main accent color (buttons, headers)
+        </li>
+        <li><code>backgroundColor</code> - Chat bubble background color</li>
+        <li><code>textColor</code> - Text color for contrast</li>
+        <li>
+          <code>showWatermark</code> - Display "Powered by Build.AI" badge
+        </li>
+      </ul>
+    </div>
+
+    <!-- Build.AI Chatbot Widget -->
+    <script
+      src="/widget.js"
+      data-chatbot-id="690d766aaab28cbf91ac9b6b"
+      data-position="bottom-right"
+      data-primary-color="#ff4d00"
+      data-bg-color="#ffd500"
+      data-text-color="#000000"
+      data-watermark="true"
+    ></script>
+  </body>
+</html>

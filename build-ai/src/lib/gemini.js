@@ -5,7 +5,8 @@
  * for chat completion and text generation.
  */
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
+const GEMINI_API_URL =
+  'https://generativelanguage.googleapis.com/v1beta/models';
 
 /**
  * Get Gemini API key from environment
@@ -46,7 +47,11 @@ function convertMessagesToGeminiFormat(messages) {
   }
 
   // If there's a system message and user messages, prepend system message to first user message
-  if (systemMessage && contentMessages.length > 0 && contentMessages[0].role === 'user') {
+  if (
+    systemMessage &&
+    contentMessages.length > 0 &&
+    contentMessages[0].role === 'user'
+  ) {
     const firstUserMessage = contentMessages[0].parts[0].text;
     contentMessages[0].parts[0].text = `${systemMessage}\n\n${firstUserMessage}`;
   }
@@ -220,7 +225,11 @@ export async function streamChatCompletion(messages, options = {}, onChunk) {
 
             if (data.candidates && data.candidates[0]) {
               const candidate = data.candidates[0];
-              if (candidate.content && candidate.content.parts && candidate.content.parts[0]) {
+              if (
+                candidate.content &&
+                candidate.content.parts &&
+                candidate.content.parts[0]
+              ) {
                 const chunkText = candidate.content.parts[0].text || '';
                 fullText += chunkText;
 

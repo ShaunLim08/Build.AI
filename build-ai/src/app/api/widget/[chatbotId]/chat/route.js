@@ -49,14 +49,14 @@ export async function POST(request, { params }) {
 
     const body = await request.json();
 
-    const {
-      message,
-      conversationHistory = [],
-      sessionId,
-    } = body;
+    const { message, conversationHistory = [], sessionId } = body;
 
     // Validate input
-    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+    if (
+      !message ||
+      typeof message !== 'string' ||
+      message.trim().length === 0
+    ) {
       return NextResponse.json(
         { error: 'Message is required' },
         { status: 400 }
@@ -67,10 +67,7 @@ export async function POST(request, { params }) {
     const chatbot = await Chatbot.findById(chatbotId);
 
     if (!chatbot) {
-      return NextResponse.json(
-        { error: 'Chatbot not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Chatbot not found' }, { status: 404 });
     }
 
     // Check if chatbot is public
@@ -96,7 +93,7 @@ export async function POST(request, { params }) {
     );
 
     const relevantChunks = retrievedChunks.filter(
-      chunk => chunk.similarity >= 0.3
+      (chunk) => chunk.similarity >= 0.3
     );
 
     // Calculate metrics
@@ -138,20 +135,22 @@ export async function POST(request, { params }) {
           conversation = await Conversation.create({
             chatbotId,
             sessionId,
-            messages: [{
-              role: 'user',
-              content: originalQuery,
-              timestamp: new Date()
-            }]
+            messages: [
+              {
+                role: 'user',
+                content: originalQuery,
+                timestamp: new Date(),
+              },
+            ],
           });
         } else {
           await Conversation.addMessage(sessionId, {
             role: 'user',
-            content: originalQuery
+            content: originalQuery,
           });
         }
 
-        const sourceChunkIds = relevantChunks.map(chunk => chunk._id);
+        const sourceChunkIds = relevantChunks.map((chunk) => chunk._id);
         await Conversation.addMessage(sessionId, {
           role: 'assistant',
           content: responseText,
@@ -159,8 +158,8 @@ export async function POST(request, { params }) {
           metadata: {
             model: completion.model,
             qualityScore: metrics.qualityScore,
-            confidence: metrics.confidence
-          }
+            confidence: metrics.confidence,
+          },
         });
       } catch (convError) {
         console.error('Failed to save conversation:', convError);
@@ -170,23 +169,25 @@ export async function POST(request, { params }) {
     const totalTime = Date.now() - startTime;
 
     // Return widget-friendly response
-    return NextResponse.json({
-      success: true,
-      response: responseText,
-      metadata: {
-        sources: contextData.sources.length,
-        confidence: metrics.confidence,
-        processingTime: totalTime,
+    return NextResponse.json(
+      {
+        success: true,
+        response: responseText,
+        metadata: {
+          sources: contextData.sources.length,
+          confidence: metrics.confidence,
+          processingTime: totalTime,
+        },
       },
-    }, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        ...rateLimitResult.headers,
+      {
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          ...rateLimitResult.headers,
+        },
       }
-    });
-
+    );
   } catch (error) {
     console.error('Widget chat error:', error);
 
@@ -201,7 +202,7 @@ export async function POST(request, { params }) {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
-        }
+        },
       }
     );
   }
