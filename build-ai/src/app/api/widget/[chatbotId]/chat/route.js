@@ -121,7 +121,7 @@ export async function POST(request, { params }) {
 
     // Generate response
     const completion = await generateChatCompletion(messages, {
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.5-flash-lite',
       temperature: chatbot.settings?.temperature || 0.7,
       maxTokens: chatbot.settings?.maxTokens || 2000,
     });

@@ -64,7 +64,7 @@ function convertMessagesToGeminiFormat(messages) {
  */
 export async function generateChatCompletion(messages, options = {}) {
   const {
-    model = 'gemini-2.0-flash-exp', // Default to latest Gemini 2.0
+    model = 'gemini-2.5-flash-lite', // Default to Gemini 2.5 Flash Lite (lower quota usage)
     temperature = 0.7,
     maxTokens = 2048,
     topP = 0.95,
@@ -147,7 +147,7 @@ export async function generateChatCompletion(messages, options = {}) {
  */
 export async function streamChatCompletion(messages, options = {}, onChunk) {
   const {
-    model = 'gemini-2.0-flash-exp',
+    model = 'gemini-2.5-flash-lite',
     temperature = 0.7,
     maxTokens = 2048,
     topP = 0.95,
@@ -273,11 +273,17 @@ export async function generateText(prompt, options = {}) {
 export function getAvailableModels() {
   return [
     {
-      id: 'gemini-2.5-flash',
-      name: 'Gemini 2.5 Flash',
-      description: 'Latest stable model - recommended',
+      id: 'gemini-2.5-flash-lite',
+      name: 'Gemini 2.5 Flash Lite',
+      description: 'Lightweight model with lower quota usage - recommended',
       contextWindow: 1000000, // 1M tokens
       recommended: true,
+    },
+    {
+      id: 'gemini-2.5-flash',
+      name: 'Gemini 2.5 Flash',
+      description: 'Latest stable model',
+      contextWindow: 1000000, // 1M tokens
     },
     {
       id: 'gemini-2.0-flash-exp',

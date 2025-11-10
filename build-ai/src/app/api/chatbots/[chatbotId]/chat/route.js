@@ -258,7 +258,7 @@ export async function POST(request, { params }) {
 
     console.log('📌 STEP 7: Generating response with Gemini...');
     console.log(
-      `   Model: ${generationOptions.model || 'gemini-2.0-flash-exp'}`
+      `   Model: ${generationOptions.model || 'gemini-2.5-flash-lite'}`
     );
     console.log(`   Stream: ${stream}`);
     console.log('');
@@ -278,7 +278,7 @@ export async function POST(request, { params }) {
             await streamChatCompletion(
               messages,
               {
-                model: generationOptions.model || 'gemini-2.0-flash-exp',
+                model: generationOptions.model || 'gemini-2.5-flash-lite',
                 temperature: generationOptions.temperature || 0.7,
                 maxTokens: generationOptions.maxTokens || 2048,
               },
@@ -309,7 +309,7 @@ export async function POST(request, { params }) {
     } else {
       // Non-streaming response
       const completion = await generateChatCompletion(messages, {
-        model: generationOptions.model || 'gemini-2.0-flash-exp',
+        model: generationOptions.model || 'gemini-2.5-flash-lite',
         temperature: generationOptions.temperature || 0.7,
         maxTokens: generationOptions.maxTokens || 2048,
       });
