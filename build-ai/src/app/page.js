@@ -100,7 +100,7 @@ export default function Home() {
               asChild
               className="text-base px-8 bg-transparent"
             >
-              <Link href="https://github.com" target="_blank">
+              <Link href="https://github.com/ShaunLim08/Build.AI" target="_blank">
                 View on GitHub
               </Link>
             </Button>
@@ -269,7 +269,7 @@ export default function Home() {
               asChild
               className="text-base px-8 bg-transparent text-background border-background/20 hover:bg-background/10 hover:text-background"
             >
-              <Link href="https://github.com" target="_blank">
+              <Link href="https://github.com/ShaunLim08/Build.AI" target="_blank">
                 View Source Code
               </Link>
             </Button>
@@ -296,7 +296,7 @@ export default function Home() {
             </p>
             <div className="flex items-center gap-6">
               <Link
-                href="https://github.com"
+                href="https://github.com/ShaunLim08/Build.AI"
                 target="_blank"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
@@ -314,7 +314,7 @@ export default function Home() {
                 </svg>
               </Link>
               <Link
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/in/shaunlim08/"
                 target="_blank"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >

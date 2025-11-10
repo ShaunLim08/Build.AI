@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -84,9 +84,9 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-
 body {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
   line-height: 1.6;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -119,7 +119,8 @@ body {
 
 /* Custom animations for login page */
 @keyframes blob {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
   }
   33% {
@@ -148,12 +149,13 @@ body {
     transform: translateX(0);
   }
   to {
-    transform: translateX(calc(-100% - 4rem));
+    transform: translateX(calc(-25%));
   }
 }
 
 .animate-scroll {
-  animation: scroll var(--animation-duration, 60s) var(--animation-direction, forwards) linear infinite;
+  animation: scroll var(--animation-duration, 60s)
+    var(--animation-direction, forwards) linear infinite;
 }
 
 .dark {
