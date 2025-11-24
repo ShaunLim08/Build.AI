@@ -61,6 +61,11 @@
     </style>
   </head>
   <body>
+    <!-- 🎯 CHANGE CHATBOT ID HERE -->
+    <script>
+      const TEST_CHATBOT_ID = '692446f6daa69b5b0dad65e6';
+    </script>
+
     <div class="card">
       <div class="alert">
         <h4>🚀 Widget Test Page</h4>
@@ -126,7 +131,7 @@
           overflow-x: auto;
         "
       ><code>&lt;script src="https://build-ai-shaun.vercel.app/widget.js"
-  data-chatbot-id="690d766aaab28cbf91ac9b6b"
+  data-chatbot-id="YOUR_CHATBOT_ID_HERE"
   data-position="bottom-right"
   data-primary-color="#ff4d00"
   data-bg-color="#ffd500"
@@ -145,7 +150,7 @@
       ><code>&lt;script src="https://build-ai-shaun.vercel.app/widget.js"&gt;&lt;/script&gt;
 &lt;script&gt;
   new BuildAIChatbot({
-    chatbotId: '690d766aaab28cbf91ac9b6b',
+    chatbotId: 'YOUR_CHATBOT_ID_HERE',
     position: 'bottom-right',
     primaryColor: '#ff4d00',
     backgroundColor: '#ffd500',
@@ -174,14 +179,17 @@
     </div>
 
     <!-- Build.AI Chatbot Widget -->
-    <script
-      src="/widget.js"
-      data-chatbot-id="690d766aaab28cbf91ac9b6b"
-      data-position="bottom-right"
-      data-primary-color="#ff4d00"
-      data-bg-color="#ffd500"
-      data-text-color="#000000"
-      data-watermark="true"
-    ></script>
+    <script src="/widget.js"></script>
+    <script>
+      // Initialize widget with the chatbot ID from the top of the page
+      new BuildAIChatbot({
+        chatbotId: TEST_CHATBOT_ID,
+        position: 'bottom-right',
+        primaryColor: '#ff4d00',
+        backgroundColor: '#ffd500',
+        textColor: '#000000',
+        showWatermark: true,
+      });
+    </script>
   </body>
 </html>
