@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 export default function ChatPage({ params }) {
   const [messages, setMessages] = useState([
@@ -193,7 +195,15 @@ export default function ChatPage({ params }) {
                     : 'bg-card border border-border'
                 }`}
               >
-                <p className="whitespace-pre-wrap">{message.content}</p>
+                {message.type === 'bot' || message.type === 'error' ? (
+                  <div className="prose prose-sm max-w-none dark:prose-invert">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {message.content}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                )}
 
                 {/* Timestamp and basic info */}
                 <div className="flex items-center justify-between mt-2 text-xs opacity-70">
