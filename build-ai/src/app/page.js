@@ -100,7 +100,10 @@ export default function Home() {
               asChild
               className="text-base px-8 bg-transparent"
             >
-              <Link href="https://github.com/ShaunLim08/Build.AI" target="_blank">
+              <Link
+                href="https://github.com/ShaunLim08/Build.AI"
+                target="_blank"
+              >
                 View on GitHub
               </Link>
             </Button>
@@ -133,9 +136,9 @@ export default function Home() {
             </div>
             <h3 className="text-xl font-semibold mb-3">Document Processing</h3>
             <p className="text-muted-foreground leading-relaxed">
-              Upload PDFs and text documents. Content is automatically extracted,
-              intelligently chunked, and embedded using Gemini&apos;s text-embedding
-              model for precise semantic retrieval.
+              Upload PDFs and text documents. Content is automatically
+              extracted, intelligently chunked, and embedded using Gemini&apos;s
+              text-embedding model for precise semantic retrieval.
             </p>
           </Card>
           <Card className="p-8 hover:shadow-lg transition-all hover:-translate-y-1 group">
@@ -144,9 +147,10 @@ export default function Home() {
             </div>
             <h3 className="text-xl font-semibold mb-3">Website Scraping</h3>
             <p className="text-muted-foreground leading-relaxed">
-              Scrape single or multiple URLs with intelligent content extraction.
-              Supports article pages, documentation sites, and knowledge bases.
-              Automatically processed into your chatbot&apos;s knowledge.
+              Scrape single or multiple URLs with intelligent content
+              extraction. Supports article pages, documentation sites, and
+              knowledge bases. Automatically processed into your chatbot&apos;s
+              knowledge.
             </p>
           </Card>
           <Card className="p-8 hover:shadow-lg transition-all hover:-translate-y-1 group">
@@ -223,8 +227,8 @@ export default function Home() {
               <h3 className="text-xl font-semibold mb-3">Process & Train</h3>
               <p className="text-muted-foreground leading-relaxed">
                 Content is automatically chunked and converted into vector
-                embeddings using Gemini, then stored in MongoDB for lightning-fast
-                semantic search.
+                embeddings using Gemini, then stored in MongoDB for
+                lightning-fast semantic search.
               </p>
             </div>
             <div className="text-center">
@@ -269,7 +273,10 @@ export default function Home() {
               asChild
               className="text-base px-8 bg-transparent text-background border-background/20 hover:bg-background/10 hover:text-background"
             >
-              <Link href="https://github.com/ShaunLim08/Build.AI" target="_blank">
+              <Link
+                href="https://github.com/ShaunLim08/Build.AI"
+                target="_blank"
+              >
                 View Source Code
               </Link>
             </Button>

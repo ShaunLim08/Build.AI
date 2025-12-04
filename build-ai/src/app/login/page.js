@@ -78,10 +78,14 @@ function LoginForm() {
 
         {/* Logo and Brand */}
         <div className="relative z-10">
-          <div className="flex items-center space-x-2 mb-8">
-            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-              <Sparkles className="w-6 h-6" />
-            </div>
+          <div className="flex items-center space-x-3 mb-8">
+            <Image
+              src="/logo.png"
+              alt="Build.AI Logo"
+              width={48}
+              height={48}
+              className="w-12 h-12"
+            />
             <span className="text-2xl font-bold">Build.AI</span>
           </div>
           <h1 className="text-5xl font-bold leading-tight mb-6">
@@ -104,7 +108,9 @@ function LoginForm() {
             </div>
             <div>
               <p className="font-semibold">Intelligent AI Assistants</p>
-              <p className="text-sm text-blue-100">Create custom chatbots trained on your data</p>
+              <p className="text-sm text-blue-100">
+                Create custom chatbots trained on your data
+              </p>
             </div>
           </div>
           <div className="flex items-start space-x-3">
@@ -113,7 +119,9 @@ function LoginForm() {
             </div>
             <div>
               <p className="font-semibold">Secure & Private</p>
-              <p className="text-sm text-blue-100">Your data is encrypted and protected</p>
+              <p className="text-sm text-blue-100">
+                Your data is encrypted and protected
+              </p>
             </div>
           </div>
           <div className="flex items-start space-x-3">
@@ -122,7 +130,9 @@ function LoginForm() {
             </div>
             <div>
               <p className="font-semibold">Easy Integration</p>
-              <p className="text-sm text-blue-100">Embed anywhere with simple code</p>
+              <p className="text-sm text-blue-100">
+                Embed anywhere with simple code
+              </p>
             </div>
           </div>
         </div>
@@ -162,13 +172,18 @@ function LoginForm() {
                   <div className="rounded-lg bg-red-50 border border-red-200 p-4 animate-in fade-in slide-in-from-top-2">
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <p className="text-sm font-medium text-red-800">{error}</p>
+                      <p className="text-sm font-medium text-red-800">
+                        {error}
+                      </p>
                     </div>
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-semibold text-gray-800">
+                  <Label
+                    htmlFor="email"
+                    className="text-sm font-semibold text-gray-800"
+                  >
                     Email address
                   </Label>
                   <div className="relative">
@@ -188,7 +203,10 @@ function LoginForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-semibold text-gray-800">
+                  <Label
+                    htmlFor="password"
+                    className="text-sm font-semibold text-gray-800"
+                  >
                     Password
                   </Label>
                   <div className="relative">
@@ -230,7 +248,9 @@ function LoginForm() {
                     <div className="w-full border-t border-gray-300"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500">New to Build.AI?</span>
+                    <span className="px-4 bg-white text-gray-500">
+                      New to Build.AI?
+                    </span>
                   </div>
                 </div>
 
@@ -249,11 +269,17 @@ function LoginForm() {
 
           <p className="mt-8 text-center text-sm text-gray-600">
             By signing in, you agree to our{' '}
-            <Link href="/terms" className="font-medium text-blue-600 hover:underline">
+            <Link
+              href="/terms"
+              className="font-medium text-blue-600 hover:underline"
+            >
               Terms of Service
             </Link>{' '}
             and{' '}
-            <Link href="/privacy" className="font-medium text-blue-600 hover:underline">
+            <Link
+              href="/privacy"
+              className="font-medium text-blue-600 hover:underline"
+            >
               Privacy Policy
             </Link>
           </p>

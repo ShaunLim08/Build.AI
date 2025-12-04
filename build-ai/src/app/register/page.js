@@ -13,7 +13,17 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Mail, Lock, User, ArrowRight, Sparkles, Shield, Zap, CheckCircle2 } from 'lucide-react';
+import {
+  Mail,
+  Lock,
+  User,
+  ArrowRight,
+  Sparkles,
+  Shield,
+  Zap,
+  CheckCircle2,
+} from 'lucide-react';
+import Image from 'next/image';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -94,10 +104,14 @@ export default function RegisterPage() {
 
         {/* Logo and Brand */}
         <div className="relative z-10">
-          <div className="flex items-center space-x-2 mb-8">
-            <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-              <Sparkles className="w-6 h-6" />
-            </div>
+          <div className="flex items-center space-x-3 mb-8">
+            <Image
+              src="/buildai.png"
+              alt="Build.AI Logo"
+              width={48}
+              height={48}
+              className="w-12 h-12"
+            />
             <span className="text-2xl font-bold">Build.AI</span>
           </div>
           <h1 className="text-5xl font-bold leading-tight mb-6">
@@ -120,7 +134,9 @@ export default function RegisterPage() {
             </div>
             <div>
               <p className="font-semibold">Quick Setup</p>
-              <p className="text-sm text-purple-100">Get started in minutes with our intuitive platform</p>
+              <p className="text-sm text-purple-100">
+                Get started in minutes with our intuitive platform
+              </p>
             </div>
           </div>
           <div className="flex items-start space-x-3">
@@ -129,7 +145,9 @@ export default function RegisterPage() {
             </div>
             <div>
               <p className="font-semibold">Enterprise Security</p>
-              <p className="text-sm text-purple-100">Bank-level encryption and security standards</p>
+              <p className="text-sm text-purple-100">
+                Bank-level encryption and security standards
+              </p>
             </div>
           </div>
           <div className="flex items-start space-x-3">
@@ -138,7 +156,9 @@ export default function RegisterPage() {
             </div>
             <div>
               <p className="font-semibold">Always Free Plan</p>
-              <p className="text-sm text-purple-100">Start free, scale as you grow</p>
+              <p className="text-sm text-purple-100">
+                Start free, scale as you grow
+              </p>
             </div>
           </div>
         </div>
@@ -178,13 +198,18 @@ export default function RegisterPage() {
                   <div className="rounded-lg bg-red-50 border border-red-200 p-4 animate-in fade-in slide-in-from-top-2">
                     <div className="flex items-center space-x-2">
                       <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                      <p className="text-sm font-medium text-red-800">{error}</p>
+                      <p className="text-sm font-medium text-red-800">
+                        {error}
+                      </p>
                     </div>
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-semibold text-gray-800">
+                  <Label
+                    htmlFor="name"
+                    className="text-sm font-semibold text-gray-800"
+                  >
                     Full name
                   </Label>
                   <div className="relative">
@@ -204,7 +229,10 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-semibold text-gray-800">
+                  <Label
+                    htmlFor="email"
+                    className="text-sm font-semibold text-gray-800"
+                  >
                     Email address
                   </Label>
                   <div className="relative">
@@ -224,7 +252,10 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-sm font-semibold text-gray-800">
+                  <Label
+                    htmlFor="password"
+                    className="text-sm font-semibold text-gray-800"
+                  >
                     Password
                   </Label>
                   <div className="relative">
@@ -245,7 +276,10 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-800">
+                  <Label
+                    htmlFor="confirmPassword"
+                    className="text-sm font-semibold text-gray-800"
+                  >
                     Confirm password
                   </Label>
                   <div className="relative">
@@ -288,7 +322,9 @@ export default function RegisterPage() {
                     <div className="w-full border-t border-gray-300"></div>
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500">Already have an account?</span>
+                    <span className="px-4 bg-white text-gray-500">
+                      Already have an account?
+                    </span>
                   </div>
                 </div>
 
@@ -307,11 +343,17 @@ export default function RegisterPage() {
 
           <p className="mt-8 text-center text-sm text-gray-600">
             By creating an account, you agree to our{' '}
-            <Link href="/terms" className="font-medium text-purple-600 hover:underline">
+            <Link
+              href="/terms"
+              className="font-medium text-purple-600 hover:underline"
+            >
               Terms of Service
             </Link>{' '}
             and{' '}
-            <Link href="/privacy" className="font-medium text-purple-600 hover:underline">
+            <Link
+              href="/privacy"
+              className="font-medium text-purple-600 hover:underline"
+            >
               Privacy Policy
             </Link>
           </p>
