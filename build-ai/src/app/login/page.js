@@ -80,7 +80,7 @@ function LoginForm() {
         <div className="relative z-10">
           <div className="flex items-center space-x-3 mb-8">
             <Image
-              src="/logo.png"
+              src="/buildai.png"
               alt="Build.AI Logo"
               width={48}
               height={48}
