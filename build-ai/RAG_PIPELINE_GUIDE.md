@@ -501,7 +501,7 @@ db.chunks.createIndex(
 ### Slow response times
 **Solution:**
 1. Reduce `limit` in retrievalOptions
-2. Use `gemini-1.5-flash` instead of Pro
+2. Use `gemini-2.0-flash` instead of Pro
 3. Implement caching
 4. Consider vector search for large datasets
 
